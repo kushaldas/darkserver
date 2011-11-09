@@ -3,7 +3,8 @@ CREATE TABLE dark_gnubuildid (
     elfname varchar(255),
     installpath varchar(500),
     buildid varchar(100),
-    rpm_name varchar(255)
+    rpm_name varchar(255),
+    distro varchar(100)
 );
 
 CREATE INDEX gnubuildid_id ON dark_gnubuildid (buildid);
