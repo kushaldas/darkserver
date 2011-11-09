@@ -43,6 +43,30 @@ def parsepath(path):
 
     return data[0], values
 
+def find_rpm_details(values):
+    try:
+        name = values['name']
+    except:
+        return json.dumps({'error':'wrong url parameter'})
+        
+    sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
+        " rpm_name='%s'" % name
+    
+    CURSOR.execute(sql)
+    row = CURSOR.fetchone()
+
+    result = []
+    while row:
+        data = {}
+        data['buildid'] = row[2]
+        data['elf'] = os.path.join(row[1],row[0])
+        data['rpm'] = row[3]
+        data['distro'] = row[4]
+        result.append(data)
+        row = CURSOR.fetchone()
+        
+    return json.dumps(result)
+    
 def find_buildids(values):
     """
     Return the buildid details
@@ -58,7 +82,6 @@ def find_buildids(values):
     
     CURSOR.execute(sql)
     row = CURSOR.fetchone()
-    import pprint 
 
     
     result = []
