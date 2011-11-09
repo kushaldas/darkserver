@@ -24,6 +24,8 @@ class customHTTPServer(BaseHTTPRequestHandler):
             self.serve_version()
         elif path == '/buildids':
             self.serve_api('buildids', values)
+        elif path == '/rpm2buildid':
+            self.serve_api('rpm2buildid', values)
         else:
             self.serve_index()
         return
@@ -34,6 +36,8 @@ class customHTTPServer(BaseHTTPRequestHandler):
         """
         if name == 'buildids':
             data = find_buildids(values)
+        elif name == 'rpm2buildid':
+            data = find_rpm_details(values)
         
         self.send_response(200)                
         self.send_header('Content-type', 'application/json')
