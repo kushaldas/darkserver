@@ -1,0 +1,31 @@
+darkserver
+=========
+This is simple python based service which provides details of GNU build-ids
+from various ELF files from the RPM packages. The service is divided into two
+different parts.
+
+
+Server side command line tool
+=============================
+
+Run the importbuidid.py on the rpms to record build-id details of various ELF
+files. You have to configure the database server details in the
+/etc/darkserver.conf file before using the above command.
+
+Example:
+$ python importbuildid.py -r /tmp/attica-0.2.0-1.fc15.x86_64.rpm -d fedora-15-x86_64
+
+
+Web server
+==========
+
+To start the server use the following command:
+
+$ python server.py 8080
+
+This will start the server at port 8080. If you want to start the server in a
+different port you can provide it as a command line argument.
+
+You can start many server instances and using a nginx server as a load
+balancer in the front.
+
