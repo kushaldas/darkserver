@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Darkroom API Documentation</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div class="bubble">
+<div class="rectangle"><h2>darkserver (0.1) API documentation</h2></div>
+<div class="triangle-l"></div>
+<div class="triangle-r"></div>
+<div class="info">
+    <h2>Alpha Version of the service</h2>
+    <p>This is a alpha version. The following calls are already working in the service.</p>
+    <h3>
+        Index of the calls
+    </h3>
+    <ul>
+        <li><a href="#serverversion">Call to find the server version</a></li>
+        <li><a href="#buildids">Call to get GNU build-id details</a></li>
+    </ul>
+
+    <h3>
+    Terminology
+    </h3>
+<div class="section">
+<h2><a name="serverversion"> Call to find server version</a></h2>
+    <p>
+        URL: <a href="/serverversion">http://server/serverversion</a>
+    </p>
+
+    <ul>
+        <li>The call will return a dictionary like {'server-version':'0.1'}</li>
+    </ul>
+
+
+<h2><a name="buildids"> Call to get GNU build-id details</a></h2>
+    <p>
+        URL: <a href="/buildids?id=">http://server/buildids?id=xyz,abc</a>
+    </p>
+
+    <ul>
+        <li>The call will return a dictionary of buildid details of xyz and abc</li>
+    </ul>
+</div>
+</div>
+</div>
+
+</div>
+<footer>
+    <div id="footer_content">
+
+    Any queries to kushal@fedoraproject.org or #fedora-india.
+
+    </div>
+</footer>
+
+</body>
+</html>
