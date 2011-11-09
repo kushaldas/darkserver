@@ -131,7 +131,7 @@ def system(cmd):
     return ret.returncode, out, err 
 
 
-def parserpm(path, config):
+def parserpm(path, config, distro="fedora"):
     """
     parse the rpm and insert data into database
     """
@@ -183,13 +183,14 @@ def parserpm(path, config):
             name = eachfile[dest_len+1:]
             dirname = "/" + '/'.join(os.path.dirname(name).split('/')[1:])
             sql = "INSERT INTO dark_gnubuildid VALUES"\
-                  " (null, '%s','%s','%s','%s')"
+                  " (null, '%s','%s','%s','%s','%s')"
             sql = sql % (os.path.basename(name), dirname, \
                          data.split(' ')[1].split('@')[0], \
-                         filename)
+                         filename[:-4], distro)
+
             cursor.execute(sql)
-        except Exception:
-            print "Not working for " % eachfile
+        except Exception, error:
+            print error
     removedir(destdir)
     conn.commit()
     
@@ -202,9 +203,17 @@ def main(args):
     parser = OptionParser()
     parser.add_option("-r", "--rpm", dest="rpm",
                           help="path to the rpm file")
+    
+    parser.add_option("-d", "--distro", dest="distro",
+                          help="distro name")
 
 
     (options, args) = parser.parse_args(args)
+
+    if not options.distro:
+        print "Please provide a distro name"
+        return -1
+
     if not options.rpm:
         print "Please provide path to the rpm"
         return -1
@@ -217,7 +226,7 @@ def main(args):
     config = ConfigParser.ConfigParser()
     config.read('/etc/darkserver.conf')
     
-    parserpm(options.rpm, config)
+    parserpm(options.rpm, config, options.distro)
 
 
 if __name__ == '__main__':
