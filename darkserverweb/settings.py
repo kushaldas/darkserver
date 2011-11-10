@@ -1,4 +1,5 @@
 import os
+import logging
 # Django settings for darkserverweb project.
 
 DEBUG = True
