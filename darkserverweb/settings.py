@@ -1,6 +1,10 @@
 import os
+import sys
 import logging
 # Django settings for darkserverweb project.
+sys.path.append('/usr/lib/python2.7/site-packages/darkserverweb/')
+sys.path.append('/usr/lib/python2.6/site-packages/darkserverweb/')
+
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
