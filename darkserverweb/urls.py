@@ -31,5 +31,7 @@ urlpatterns = patterns('',
     url(r'^rpm2buildids/', 'views.index'),
     url(r'^package/(?P<name>.+)', 'views.package'),
     url(r'^package/', 'views.index'),
+    url(r'^serverversion', 'views.serverversion'),
+
     
 )

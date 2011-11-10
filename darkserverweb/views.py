@@ -34,4 +34,10 @@ def index(request):
     """
     data = open('/usr/share/darkserver/static/index.html').read()
     return HttpResponse(data)
+
+def serverversion(request):
+    """
+    The server version
+    """
+    return HttpResponse(json.dumps({'server-version':'0.1'}), mimetype='application/json')
     
