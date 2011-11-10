@@ -4,23 +4,34 @@ This is simple python and Django based service which provides details of GNU bui
 from various ELF files from the RPM packages. The service is divided into two
 different parts.
 
+Requirements
+============
+
+* Python >= 2.6
+* Django >= 1.1.2
+* elf-utils
+* koji
+* rpmdevtools
+* mysql server
+
 
 Server side command line tool
 =============================
 
-Run the importbuidid.py on the rpms to record build-id details of various ELF
+Run the createtable.sql under /usr/share/darkserver to create table structure.
+
+Run the darkserver-import on the rpms to record build-id details of various ELF
 files. You have to configure the database server details in the
-/etc/darkserver.conf file before using the above command.
+/etc/darkserver/darkserver.conf file before using the above command.
 
 Example:
-$ python importbuildid.py -r /tmp/attica-0.2.0-1.fc15.x86_64.rpm -d fedora-15-x86_64
+$ python darkserver-import -r /tmp/attica-0.2.0-1.fc15.x86_64.rpm -d fedora-15-x86_64
 
 
 Web server
 ==========
 
-First setup the database details in /etc/darkserver/darkserver.conf and
-READONLY access at /etc/darkserver/darkserverwe.conf
+First setup the database details in READONLY access at /etc/darkserver/darkserverweb.conf
 
 To start the server use the following command:
 
