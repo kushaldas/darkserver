@@ -14,7 +14,7 @@ import MySQLdb
 import ConfigParser
 
 config = ConfigParser.ConfigParser()
-config.read('/etc/darkserverweb.conf')
+config.read('/etc/darkserver/darkserverweb.conf')
 dbhost = config.get('darkserver','host')
 dbuser =  config.get('darkserver','user')
 dbpassword = config.get('darkserver','password')

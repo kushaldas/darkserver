@@ -224,7 +224,7 @@ def main(args):
     
     #let us find the db configuration
     config = ConfigParser.ConfigParser()
-    config.read('/etc/darkserver.conf')
+    config.read('/etc/darkserver/darkserver.conf')
     
     parserpm(options.rpm, config, options.distro)
 
