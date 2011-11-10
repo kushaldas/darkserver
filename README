@@ -1,6 +1,6 @@
 darkserver
 =========
-This is simple python based service which provides details of GNU build-ids
+This is simple python and Django based service which provides details of GNU build-ids
 from various ELF files from the RPM packages. The service is divided into two
 different parts.
 
@@ -19,13 +19,13 @@ $ python importbuildid.py -r /tmp/attica-0.2.0-1.fc15.x86_64.rpm -d fedora-15-x8
 Web server
 ==========
 
+First setup the database details in /etc/darkserver/darkserver.conf and
+READONLY access at /etc/darkserver/darkserverwe.conf
+
 To start the server use the following command:
 
-$ python server.py 8080
+$ python manage.py runserver 8080
 
 This will start the server at port 8080. If you want to start the server in a
 different port you can provide it as a command line argument.
-
-You can start many server instances and using a nginx server as a load
-balancer in the front.
 
