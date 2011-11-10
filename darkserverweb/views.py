@@ -27,6 +27,7 @@ def index(request):
     The index page
     """
     data = {'Message': 'Welcome to Darkserver, a GNU build-id details provider'}
+    data['website'] = 'https://github.com/kushaldas/darkserver'
     data['buildids'] = "Pass a comma separated build-ids for details to /buildids/"
     data['rpm2buildids'] = "Pass a rpm name to /rpm2buildids"
     return HttpResponse(json.dumps(data), mimetype='application/json')
