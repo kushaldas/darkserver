@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Darkroom API Documentation</title>
+<title>Darkserver API Documentation</title>
 <link href="darkserver/style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -31,7 +31,7 @@
 <div class="section">
 <h2><a name="serverversion"> Call to find server version</a></h2>
     <p>
-        URL: <a href="/serverversion">http://server/serverversion</a>
+        URL: <a href="darkserver/serverversion">http://server/serverversion</a>
     </p>
 
     <ul>
@@ -41,12 +41,29 @@
 
 <h2><a name="buildids"> Call to get GNU build-id details</a></h2>
     <p>
-        URL: <a href="/buildids/someid=">http://server/buildids/someid</a>
+        URL: <a href="darkserver/buildids/">http://server/buildids/someid</a>
     </p>
 
     <ul>
-        <li>The call will return a dictionary of buildid details of xyz and abc</li>
+        <li>The call will return a dictionary of build-id details of xyz and abc</li>
     </ul>
+<h2><a name="rpm2buildids"> Call to get GNU build-id details of an RPM</a></h2>
+    <p>
+        URL: <a href="darkserver/rpm2buildids/">http://server/rpm2buildids/rpmname</a>
+    </p>
+
+    <ul>
+        <li>The call will return a dictionary of build-id details of given rpm</li>
+    </ul>
+<h2><a name="package"> Call to get download url of a RPM</a></h2>
+    <p>
+        URL: <a href="darkserver/package/">http://server/package/rpmname</a>
+    </p>
+
+    <ul>
+        <li>The call will return a dictionary of the download url</li>
+    </ul>
+
 </div>
 </div>
 </div>
