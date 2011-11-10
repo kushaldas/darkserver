@@ -15,10 +15,10 @@ import ConfigParser
 
 config = ConfigParser.ConfigParser()
 config.read('/etc/darkserver/darkserverweb.conf')
-dbhost = config.get('darkserver','host')
-dbuser =  config.get('darkserver','user')
-dbpassword = config.get('darkserver','password')
-dbname =  config.get('darkserver','database')
+dbhost = config.get('darkserverweb','host')
+dbuser =  config.get('darkserverweb','user')
+dbpassword = config.get('darkserverweb','password')
+dbname =  config.get('darkserverweb','database')
 conn = None
 try:
     conn = MySQLdb.connect (host = dbhost,

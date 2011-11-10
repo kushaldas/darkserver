@@ -7,6 +7,7 @@
 # option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
 # the full text of the license.
 from django.conf.urls.defaults import patterns, include, url
+from settings import MEDIA_ROOT
 
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
