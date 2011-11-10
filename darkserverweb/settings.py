@@ -129,10 +129,10 @@ INSTALLED_APPS = (
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
 #logging settings
-LOG_FILENAME = 'darkserver.log'
-logging.basicConfig(
-    filename=os.path.join('/var', 'log', 'darkserver', LOG_FILENAME),
-    level=logging.CRITICAL,
-    format='%(pathname)s TIME: %(asctime)s MSG: %(filename)s:%(funcName)s:%(lineno)d %(message)s',
-)
+#LOG_FILENAME = 'darkserver.log'
+#logging.basicConfig(
+#    filename=os.path.join('/var', 'log', 'darkserver', LOG_FILENAME),
+#    level=logging.CRITICAL,
+#    format='%(pathname)s TIME: %(asctime)s MSG: %(filename)s:%(funcName)s:%(lineno)d %(message)s',
+#)
 
