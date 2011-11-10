@@ -19,5 +19,8 @@ setup(name='darkserver',
       data_files=[("/usr/bin",['importbuildid.py']),
           ('/etc/darkserver', ['darkserver.conf', 'darkserverweb.conf']),
           ('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
-          ('/usr/sbin/', ['darkserver.wsgi'])]
+          ('/usr/sbin/', ['darkserver.wsgi']),
+          ('/etc/darkserver/', ['darkserverweb/settings.py']),
+          ('/usr/share/darkserver', ['static/index.html','static/index.css'])]
+      
       )
