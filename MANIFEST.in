@@ -1,12 +1,12 @@
-darkserver.wsgi
-importbuildid.py
-darkserver.conf
-darkserverweb.conf
-darkserver-httpd.conf
-setup.py
-README
-MANIFEST.in
-darkserverweb/*.py
-static/index.html
-static/style.css
-createtable.sql
+include darkserver.wsgi
+include importbuildid.py
+include darkserver.conf
+include darkserverweb.conf
+include darkserver-httpd.conf
+include setup.py
+include README
+include MANIFEST.in
+include darkserverweb/*.py
+include static/*.*
+include static/style.css
+include createtable.sql
