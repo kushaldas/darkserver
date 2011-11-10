@@ -12,15 +12,21 @@ from dark_api import *
 
 def buildids(request, ids):
     """
-    Return the build-id details
+    Returns the build-id details
     """
     return HttpResponse(find_buildids(ids), mimetype='application/json')
 
 def rpm2buildids(request, name):
     """
-    Return the build-id details for a given rpm
+    Returns the build-id details for a given rpm
     """
     return HttpResponse(find_rpm_details(name), mimetype='application/json')
+
+def package(request, name):
+    """
+    Returns the package download url from koji
+    """
+    return HttpResponse(get_koji_download_url(name), mimetype='application/json')
 
 def index(request):
     """
