@@ -31,4 +31,5 @@ urlpatterns = patterns('',
     ),
     url(r'^buildids/(?P<ids>.+)', 'views.buildids'),
     url(r'^rpm2buildids/(?P<name>.+)', 'views.rpm2buildids'),
+    url(r'/$', 'views.index')
 )
