@@ -9,3 +9,4 @@ MANIFEST.in
 darkserverweb/*.py
 static/index.html
 static/style.css
+createtable.sql

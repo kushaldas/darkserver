@@ -21,6 +21,7 @@ setup(name='darkserver',
           ('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
           ('/usr/sbin/', ['darkserver.wsgi']),
           ('/etc/darkserver/', ['darkserverweb/settings.py']),
-          ('/usr/share/darkserver', ['static/index.html','static/index.css'])]
+          ('/usr/share/darkserver/static', ['static/index.html','static/style.css']),
+          ('/usr/share/darkserver/' , ['createtable.sql']),]
       
       )
