@@ -45,7 +45,12 @@ def parsepath(path):
     return data[0], values
 
 def find_rpm_details(name):
-        
+    """
+    Return GNU build-id details for a rpm
+    """
+    if name.endswith('.rpm'):
+        name = name[:-4]
+
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
         " rpm_name='%s'" % name
     
