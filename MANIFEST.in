@@ -1,0 +1,10 @@
+darkserver.wsgi
+importbuildid.py
+darkserver.conf
+darkserverweb.conf
+darkserver-httpd.conf
+setup.py
+README
+MANIFEST.in
+darkserverweb/*.py
+darkserverweb/static/*
