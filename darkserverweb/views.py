@@ -8,9 +8,10 @@
 # the full text of the license.
 from django.http import HttpResponse
 import json
+from dark_api import *
 
 def buildids(request, ids):
-    return HttpResponse(json.dumps({'id':ids}), mimetype='application/json')
+    return HttpResponse(find_buildids(ids), mimetype='application/json')
 
-def buildids(request, name):
-    return HttpResponse(json.dumps({'name':name}), mimetype='application/json')
+def rpm2buildids(request, name):
+    return HttpResponse(find_rpm_details(name), mimetype='application/json')

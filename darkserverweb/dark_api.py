@@ -14,7 +14,7 @@ import MySQLdb
 import ConfigParser
 
 config = ConfigParser.ConfigParser()
-config.read('/etc/darkserver.conf')
+config.read('/etc/darkserverweb.conf')
 dbhost = config.get('darkserver','host')
 dbuser =  config.get('darkserver','user')
 dbpassword = config.get('darkserver','password')
@@ -43,11 +43,7 @@ def parsepath(path):
 
     return data[0], values
 
-def find_rpm_details(values):
-    try:
-        name = values['name']
-    except:
-        return json.dumps({'error':'wrong url parameter'})
+def find_rpm_details(name):
         
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
         " rpm_name='%s'" % name
@@ -67,14 +63,10 @@ def find_rpm_details(values):
         
     return json.dumps(result)
     
-def find_buildids(values):
+def find_buildids(ids):
     """
     Return the buildid details
     """
-    try:
-        ids = values['id']
-    except:
-        return json.dumps({'error':'wrong url parameter'})
     
     ids = ids.split(',')
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
