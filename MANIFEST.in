@@ -7,4 +7,5 @@ setup.py
 README
 MANIFEST.in
 darkserverweb/*.py
-darkserverweb/static/*
+static/index.html
+static/style.css
