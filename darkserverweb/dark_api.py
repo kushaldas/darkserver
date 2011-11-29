@@ -27,13 +27,12 @@ try:
                             db = dbname)
 except Exception, error:
     print error.message
-CURSOR = conn.cursor ()
 
 def parsepath(path):
-    """ 
+    """
     Parse the url and send the details back in a tuple
     """
-    
+
     data = path.split('?')
     values = {}
     if len(data) > 1:
@@ -52,7 +51,8 @@ def find_rpm_details(name):
 
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
         " rpm_name='%s'" % name
-    
+
+    CURSOR = conn.cursor ()
     CURSOR.execute(sql)
     row = CURSOR.fetchone()
 
@@ -65,22 +65,22 @@ def find_rpm_details(name):
         data['distro'] = row[4]
         result.append(data)
         row = CURSOR.fetchone()
-        
+
     return json.dumps(result)
-    
+
 def find_buildids(ids):
     """
     Return the buildid details
     """
-    
+
     ids = ids.split(',')
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
            " buildid in ('%s')" % "','".join(ids)
-    
+    CURSOR = conn.cursor ()
     CURSOR.execute(sql)
     row = CURSOR.fetchone()
 
-    
+
     result = []
     while row:
         data = {}
@@ -90,9 +90,9 @@ def find_buildids(ids):
         data['distro'] = row[4]
         result.append(data)
         row = CURSOR.fetchone()
-        
+
     return json.dumps(result)
-    
+
 
 def get_koji_download_url(pkg_name, \
                 kojiurl="http://koji.fedoraproject.org/kojihub", \
@@ -117,7 +117,7 @@ def get_koji_download_url(pkg_name, \
                                   parent_build_info['release'], \
                                   fname)
     return json.dumps({'url':url})
-    
+
 
 if __name__ == '__main__':
     from pprint import pprint
