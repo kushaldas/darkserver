@@ -6,7 +6,7 @@ sys.path.append('/usr/lib/python2.7/site-packages/darkserverweb/')
 sys.path.append('/usr/lib/python2.6/site-packages/darkserverweb/')
 
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
