@@ -50,10 +50,10 @@ def find_rpm_details(name):
         name = name[:-4]
 
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
-        " rpm_name='%s'" % name
+        " rpm_name=%s"
 
     CURSOR = conn.cursor ()
-    CURSOR.execute(sql)
+    CURSOR.execute(sql, name)
     row = CURSOR.fetchone()
 
     result = []
@@ -75,9 +75,13 @@ def find_buildids(ids):
 
     ids = ids.split(',')
     sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
-           " buildid in ('%s')" % "','".join(ids)
+           " buildid in (%s"
+    if len(ids) > 1:
+        for x in ids[:-1]:
+            sql += ",%s"
+    sql += ")"
     CURSOR = conn.cursor ()
-    CURSOR.execute(sql)
+    CURSOR.execute(sql, ids)
     row = CURSOR.fetchone()
 
 
