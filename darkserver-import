@@ -22,7 +22,7 @@ def is_elf(filepath):
     """
     Finds if a file is elf or not
     """
-    cmd = "file %s" % filepath
+    cmd = "file -k %s" % filepath
     data = system(cmd)
     data = data.split(": ")
     if len(data) > 1:
@@ -31,9 +31,9 @@ def is_elf(filepath):
     return False
 
 
-def get_elf_files(files):
+def find_elf_files(files):
     """
-    Takes file list as input and returns ELF files among them as list.
+    Returns the ELF files from the list
     """
     elfs = []
     for filename in files:
@@ -100,7 +100,7 @@ def parserpm(path, config, distro="fedora"):
     
     #Find out all elf files from the list
     files = [os.path.join(destdir, row) for row in data]
-    elffiles = get_elf_files(files)
+    elffiles = find_elf_files(files)
     
     #Return if ELF file found in the RPM
     if not elffiles:
