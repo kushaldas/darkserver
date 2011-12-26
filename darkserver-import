@@ -38,7 +38,7 @@ def get_elf_files(files):
     elfs = []
     for filename in files:
         if os.path.exists(filename):
-            if is_elf(filepath)
+            if is_elf(filepath):
                 elfs.append(filename)
     return elfs
 
