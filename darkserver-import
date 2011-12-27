@@ -125,7 +125,7 @@ def parserpm(path, config, distro="fedora"):
         except Exception, error:
             print error
     removedir(destdir)
-    #conn.commit()
+    conn.commit()
     
 
 
