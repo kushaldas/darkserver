@@ -38,7 +38,7 @@ def find_elf_files(files):
     elfs = []
     for filename in files:
         if os.path.exists(filename):
-            if is_elf(filepath):
+            if is_elf(filename):
                 elfs.append(filename)
     return elfs
 
@@ -125,7 +125,7 @@ def parserpm(path, config, distro="fedora"):
         except Exception, error:
             print error
     removedir(destdir)
-    conn.commit()
+    #conn.commit()
     
 
 
