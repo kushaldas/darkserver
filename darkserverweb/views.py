@@ -10,6 +10,8 @@ from django.http import HttpResponse
 import json
 from dark_api import *
 
+SERVER_VERSION = '0.1'
+
 def buildids(request, ids):
     """
     Returns the build-id details
@@ -39,5 +41,6 @@ def serverversion(request):
     """
     The server version
     """
-    return HttpResponse(json.dumps({'server-version':'0.1'}), mimetype='application/json')
-    
+    return HttpResponse(json.dumps({'server-version':SERVER_VERSION}), mimetype='application/json')
+
+
