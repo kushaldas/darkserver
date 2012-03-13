@@ -12,6 +12,7 @@ import json
 import koji
 import MySQLdb
 import ConfigParser
+from buildid.models import *
 
 config = ConfigParser.ConfigParser()
 config.read('/etc/darkserver/darkserverweb.conf')
@@ -49,22 +50,15 @@ def find_rpm_details(name):
     if name.endswith('.rpm'):
         name = name[:-4]
 
-    sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
-        " rpm_name=%s"
-
-    CURSOR = conn.cursor ()
-    CURSOR.execute(sql, name)
-    row = CURSOR.fetchone()
-
+    rows = Gnubuildid.objects.filter(rpm_name=name)
     result = []
-    while row:
+    for row in rows:
         data = {}
-        data['buildid'] = row[2]
-        data['elf'] = os.path.join(row[1],row[0])
-        data['rpm'] = row[3]
-        data['distro'] = row[4]
+        data['buildid'] = row.build_id
+        data['elf'] = os.path.join(row.instpath,row.elfname)
+        data['rpm'] = row.rpm_name
+        data['distro'] = row.distro
         result.append(data)
-        row = CURSOR.fetchone()
 
     return json.dumps(result)
 
@@ -74,26 +68,16 @@ def find_buildids(ids):
     """
 
     ids = ids.split(',')
-    sql = "SELECT elfname, installpath, buildid, rpm_name, distro from dark_gnubuildid where" + \
-           " buildid in (%s"
-    if len(ids) > 1:
-        for x in ids[:-1]:
-            sql += ",%s"
-    sql += ")"
-    CURSOR = conn.cursor ()
-    CURSOR.execute(sql, ids)
-    row = CURSOR.fetchone()
 
-
+    rows = Gnubuildid.objects.filter(build_id__in=ids)
     result = []
-    while row:
+    for row in rows:
         data = {}
-        data['buildid'] = row[2]
-        data['elf'] = os.path.join(row[1],row[0])
-        data['rpm'] = row[3]
-        data['distro'] = row[4]
+        data['buildid'] = row.build_id
+        data['elf'] = os.path.join(row.instpath,row.elfname)
+        data['rpm'] = row.rpm_name
+        data['distro'] = row.distro
         result.append(data)
-        row = CURSOR.fetchone()
 
     return json.dumps(result)
 
@@ -122,6 +106,25 @@ def get_koji_download_url(pkg_name, \
                                   fname)
     return json.dumps({'url':url})
 
+
+def write_info(username, password, data):
+    user = Darkuser.objects.filter(name=username,password=password)
+    if len(user) == 1:
+        info = json.loads(data)
+        if type(info) == type([1,2]):
+            for row in info:
+                if len(row) == 5:
+                    g = Gnubuildid()
+                    g.elfname = row[0]
+                    g.instpath = row[1]
+                    g.build_id = row[2]
+                    g.rpm_name = row[3]
+                    g.distro = row[4]
+                    g.save()
+        else:
+            return "Wrong json data " + str(type(info))
+        return "Authenticated, information saved"
+    return "Wrong credentials"
 
 if __name__ == '__main__':
     from pprint import pprint
