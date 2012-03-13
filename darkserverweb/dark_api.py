@@ -10,6 +10,7 @@
 import os
 import json
 import koji
+import hashlib
 import MySQLdb
 import ConfigParser
 from buildid.models import *
@@ -94,6 +95,9 @@ def get_koji_download_url(pkg_name, \
 
 
 def write_info(username, password, data):
+    h = hashlib.new('sha1')
+    h.update(password)
+    password = h.hexdigest()
     user = Darkuser.objects.filter(name=username,password=password)
     if len(user) == 1:
         info = json.loads(data)
