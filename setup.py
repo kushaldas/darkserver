@@ -7,7 +7,7 @@ import os
 
 
 setup(name='darkserver',
-      version='0.4',
+      version='0.4.1',
       description="GNU build-id web service",
       long_description = "GNU build-id web service",
       platforms = ["Linux"],
@@ -18,7 +18,7 @@ setup(name='darkserver',
       packages = ['darkserverweb','darkserverweb.buildid'],
       data_files=[('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
           ('/usr/sbin/', ['darkserver.wsgi']),
-          ('/etc/darkserver/', ['darkserverweb/settings.py']),
+          ('/etc/darkserver/', ['darkserverweb/settings.py','darkserverweb.conf']),
           ('/usr/share/darkserver/static', ['static/index.html','static/style.css']),]
 
       )

@@ -1,6 +1,10 @@
 import os
 import sys
 import logging
+import ConfigParser
+config = ConfigParser.ConfigParser()
+config.read('/etc/darkserver/darkserverweb.conf')
+
 # Django settings for darkserverweb project.
 sys.path.append('/usr/lib/python2.7/site-packages/darkserverweb/')
 sys.path.append('/usr/lib/python2.6/site-packages/darkserverweb/')
@@ -17,11 +21,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': config.get('darkserverweb','database'),                      # Or path to database file if using sqlite3.
+        'USER': config.get('darkserverweb','user'),                      # Not used with sqlite3.
+        'PASSWORD': config.get('darkserverweb','password') ,                  # Not used with sqlite3.
+        'HOST': config.get('darkserverweb','host'),                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }

@@ -1,5 +1,6 @@
 include darkserver.wsgi
 include darkserver-httpd.conf
+include darkserverweb.conf
 include setup.py
 include README
 include MANIFEST.in
