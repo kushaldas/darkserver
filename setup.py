@@ -7,7 +7,7 @@ import os
 
 
 setup(name='darkserver',
-      version='0.3',
+      version='0.4',
       description="GNU build-id web service",
       long_description = "GNU build-id web service",
       platforms = ["Linux"],
@@ -15,13 +15,10 @@ setup(name='darkserver',
       author_email="kdas@redhat.com",
       url="https://github.com/kushaldas/darkserver",
       license = "http://www.gnu.org/copyleft/gpl.html",
-      packages = ['darkserverweb'],
-      data_files=[("/usr/sbin",['darkserver-import']),
-          ('/etc/darkserver', ['darkserver.conf', 'darkserverweb.conf']),
-          ('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
+      packages = ['darkserverweb','darkserverweb.buildid'],
+      data_files=[('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
           ('/usr/sbin/', ['darkserver.wsgi']),
           ('/etc/darkserver/', ['darkserverweb/settings.py']),
-          ('/usr/share/darkserver/static', ['static/index.html','static/style.css']),
-          ('/usr/share/darkserver/' , ['createtable.sql']),]
-      
+          ('/usr/share/darkserver/static', ['static/index.html','static/style.css']),]
+
       )

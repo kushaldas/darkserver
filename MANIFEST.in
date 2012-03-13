@@ -1,12 +1,9 @@
 include darkserver.wsgi
-include importbuildid.py
-include darkserver.conf
-include darkserverweb.conf
 include darkserver-httpd.conf
 include setup.py
 include README
 include MANIFEST.in
 include darkserverweb/*.py
+include darkserverweb/buildid/*.py
 include static/*.*
 include static/style.css
-include createtable.sql
