@@ -6,5 +6,7 @@ include README
 include MANIFEST.in
 include darkserverweb/*.py
 include darkserverweb/buildid/*.py
+include koji-plugin/darkserver-plugin.py
+include koji-plugin/darkserver.conf
 include static/*.*
 include static/style.css
