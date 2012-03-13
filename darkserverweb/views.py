@@ -10,7 +10,7 @@ from django.http import HttpResponse
 import json
 from dark_api import *
 
-SERVER_VERSION = '0.1'
+SERVER_VERSION = '0.5'
 
 def buildids(request, ids):
     """
