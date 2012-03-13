@@ -14,20 +14,6 @@ import MySQLdb
 import ConfigParser
 from buildid.models import *
 
-config = ConfigParser.ConfigParser()
-config.read('/etc/darkserver/darkserverweb.conf')
-dbhost = config.get('darkserverweb','host')
-dbuser =  config.get('darkserverweb','user')
-dbpassword = config.get('darkserverweb','password')
-dbname =  config.get('darkserverweb','database')
-conn = None
-try:
-    conn = MySQLdb.connect (host = dbhost,
-                            user = dbuser,
-                            passwd = dbpassword,
-                            db = dbname)
-except Exception, error:
-    print error.message
 
 def parsepath(path):
     """
