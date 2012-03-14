@@ -7,7 +7,7 @@ import os
 
 
 setup(name='darkserver',
-      version='0.5',
+      version='0.5.1',
       description="GNU build-id web service",
       long_description = "GNU build-id web service",
       platforms = ["Linux"],
