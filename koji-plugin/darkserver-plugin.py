@@ -8,7 +8,7 @@ import sys
 import stat
 import tempfile
 import subprocess
-import xmlrpclib
+import MySQLdb
 import json
 import ConfigParser
 
@@ -20,9 +20,11 @@ def getconfig():
     config.read('/etc/koji-hub/plugins/darkserver.conf')
     result = {}
     try:
-        result['URL'] = config.get('darkserver','url')
+        result['DB'] = config.get('darkserver','database')
         result['USER'] = config.get('darkserver','user')
         result['PASSWORD'] = config.get('darkserver','password')
+        result['HOST'] = config.get('darkserver','host')
+        result['PORT'] = config.get('darkserver','PORT')
     except:
         logging.getLogger('koji.plugin.darkserver').error('Problem parsing config')
     return result
@@ -102,7 +104,9 @@ def parserpm(path, distro="fedora"):
         try:
             name = eachfile[dest_len+1:]
             dirname = "/" + '/'.join(os.path.dirname(name).split('/')[1:])
-            sql = (os.path.basename(name), dirname, \
+            sql = "INSERT INTO buildid_gnubuildid VALUES"\
+                              " (null, '%s','%s','%s','%s','%s')"
+            sql = sql % (os.path.basename(name), dirname, \
                          data.split(' ')[1].split('@')[0], \
                          filename[:-4], distro)
 
@@ -112,9 +116,15 @@ def parserpm(path, distro="fedora"):
     removedir(destdir)
     config = getconfig()
     try:
-        s = xmlrpclib.Server(config['URL'])
-        out = s.writeinfo(config['USER'],config['PASSWORD'],json.dumps(result))
-        logging.getLogger('koji.plugin.darkserver').info(out)
+
+        conn = MySQLdb.connect(config['HOST'], config['USER'], config['PASSWORD'], config['DB'])
+        cursor = conn.cursor()
+
+        for sql in result:
+            cursor.execute(sql)
+        conn.commit()
+
+        logging.getLogger('koji.plugin.darkserver').info(filename)
     except Exception, e:
         logging.getLogger('koji.plugin.darkserver').error(str(e))
 
