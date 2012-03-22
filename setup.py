@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""ksc"""
+"""darkserver"""
 from distutils.core import setup
 from distutils.core import Command
 import os
@@ -7,7 +7,7 @@ import os
 
 
 setup(name='darkserver',
-      version='0.5.1',
+      version='0.5.2',
       description="GNU build-id web service",
       long_description = "GNU build-id web service",
       platforms = ["Linux"],
@@ -21,6 +21,7 @@ setup(name='darkserver',
           ('/etc/darkserver/', ['darkserverweb/settings.py','darkserverweb.conf']),
           ('/etc/koji-hub/plugins/', ['koji-plugin/darkserver.conf']),
           ('/usr/lib/koji-hub-plugins/', ['koji-plugin/darkserver-plugin.py']),
-          ('/usr/share/darkserver/static', ['static/index.html','static/style.css']),]
+          ('/usr/share/darkserver/static', ['static/index.html','static/404.html', \
+                                            'static/500.html']),]
 
       )
