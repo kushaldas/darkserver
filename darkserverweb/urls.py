@@ -6,7 +6,7 @@
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
 # the full text of the license.
-from xmlrpcapi import rpc_handler
+from buildid.xmlrpcapi import rpc_handler
 from django.conf.urls.defaults import patterns, include, url
 from settings import MEDIA_ROOT
 
@@ -25,14 +25,14 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
     
-    url(r'^$', 'views.index'),
-    url(r'^buildids/(?P<ids>.+)', 'views.buildids'),
-    url(r'^buildids/', 'views.index'),
-    url(r'^rpm2buildids/(?P<name>.+)', 'views.rpm2buildids'),
-    url(r'^rpm2buildids/', 'views.index'),
-    url(r'^package/(?P<name>.+)', 'views.package'),
-    url(r'^package/', 'views.index'),
-    url(r'^serverversion', 'views.serverversion'),
+    url(r'^$', 'buildid.views.index'),
+    url(r'^buildids/(?P<ids>.+)', 'buildid.views.buildids'),
+    url(r'^buildids/', 'buildid.views.index'),
+    url(r'^rpm2buildids/(?P<name>.+)', 'buildid.views.rpm2buildids'),
+    url(r'^rpm2buildids/', 'buildid.views.index'),
+    url(r'^package/(?P<name>.+)', 'buildid.views.package'),
+    url(r'^package/', 'buildid.views.index'),
+    url(r'^serverversion', 'buildid.views.serverversion'),
     url(r'^xmlrpc/$', rpc_handler),
     
 )
