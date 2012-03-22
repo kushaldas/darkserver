@@ -72,15 +72,13 @@ def system(cmd):
     out, err = ret.communicate()
     return out
 
-def parserpm(path, distro="fedora"):
+def parserpm(destdir, path, distro="fedora"):
     """
     parse the rpm and insert data into database
     """
     path = path.strip()
     filename = os.path.basename(path)
 
-    #Create the temp dir
-    destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
 
     #Extract the rpm
     cmd = 'rpmdev-extract -C %s %s' % (destdir, path)
@@ -113,7 +111,7 @@ def parserpm(path, distro="fedora"):
             result.append(sql)
         except Exception, error:
             print error
-    removedir(destdir)
+
     config = getconfig()
     try:
 
@@ -149,11 +147,17 @@ def run_dark_command(cbtype, *args, **kws):
     uploadpath = pathinfo.work()
     rpms = []
     for relpath in kws['rpms']:
-       rpms.append( '%s/%s ' % (uploadpath, relpath))
+        rpms.append( '%s/%s ' % (uploadpath, relpath))
 
     #Now parse each rpm and also log it
     for rpm in rpms:
-        logging.getLogger('koji.plugin.darkserver').info(rpm)
-        parserpm(rpm, tag_name)
+        #Create the temp dir
+        destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
+        try:
+            parserpm(destdir, rpm, tag_name)
+        except Exception, error:
+            logging.getLogger('koji.plugin.darkserver').error(str(error))
+        removedir(destdir)
+
 
 register_callback('preImport', run_dark_command)
