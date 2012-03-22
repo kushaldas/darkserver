@@ -1,0 +1,33 @@
+[
+    {
+        "pk": 1, 
+        "model": "buildid.gnubuildid", 
+        "fields": {
+            "build_id": "868357887701f51d867eacd0da6e5af6d8c70ce2", 
+            "rpm_name": "apr-1.4.5-1.fc16.x86_64", 
+            "elfname": "libapr-1.so.0.4.5", 
+            "distro": "dist-foo-build", 
+            "instpath": "/usr/lib64"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "buildid.gnubuildid", 
+        "fields": {
+            "build_id": "868357887701f51d867eacd0da6e5af6d8c70ce2", 
+            "rpm_name": "apr-debuginfo-1.4.5-1.fc16.x86_64", 
+            "elfname": "libapr-1.so.0.4.5.debug", 
+            "distro": "dist-foo-build", 
+            "instpath": "/usr/lib/debug/usr/lib64"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "buildid.darkuser", 
+        "fields": {
+            "password": "7027e3ff134b6c1cf522b36e6f8f18707f0fe267", 
+            "name": "kushal", 
+            "comments": ""
+        }
+    }
+]
