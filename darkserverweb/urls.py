@@ -13,6 +13,8 @@ from settings import MEDIA_ROOT
 # Uncomment the next two lines to enable the admin:
 # from django.contrib import admin
 # admin.autodiscover()
+handler404 = 'buildid.views.view404'
+handler500 = 'buildid.views.view500'
 
 urlpatterns = patterns('',
     # Examples:
@@ -27,11 +29,11 @@ urlpatterns = patterns('',
     
     url(r'^$', 'buildid.views.index'),
     url(r'^buildids/(?P<ids>.+)', 'buildid.views.buildids'),
-    url(r'^buildids/', 'buildid.views.index'),
+    #url(r'^buildids/', 'buildid.views.index'),
     url(r'^rpm2buildids/(?P<name>.+)', 'buildid.views.rpm2buildids'),
-    url(r'^rpm2buildids/', 'buildid.views.index'),
+    #url(r'^rpm2buildids/', 'buildid.views.index'),
     url(r'^package/(?P<name>.+)', 'buildid.views.package'),
-    url(r'^package/', 'buildid.views.index'),
+    #url(r'^package/', 'buildid.views.index'),
     url(r'^serverversion', 'buildid.views.serverversion'),
     url(r'^xmlrpc/$', rpc_handler),
     

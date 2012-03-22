@@ -6,7 +6,7 @@
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
 # the full text of the license.
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 import json
 from dark_api import *
 
@@ -40,6 +40,29 @@ def index(request):
         path = '../static/index.html'
     data = open(path).read()
     return HttpResponse(data)
+
+def view404(request):
+    """
+    The 404 page
+    """
+    if os.path.isfile('/usr/share/darkserver/static/404.html'):
+        path = '/usr/share/darkserver/static/404.html' # pragma: no cover
+    else:
+        path = '../static/404.html'
+    data = open(path).read()
+    return HttpResponseNotFound(data)
+
+def view500(request):
+    """
+    The 500 page
+    """
+    if os.path.isfile('/usr/share/darkserver/static/500.html'):
+        path = '/usr/share/darkserver/static/500.html' # pragma: no cover
+    else:
+        path = '../static/500.html'
+    data = open(path).read()
+    return HttpResponse(data)
+
 
 def serverversion(request):
     """
