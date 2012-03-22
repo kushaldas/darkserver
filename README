@@ -15,23 +15,10 @@ Requirements
 * mysql server
 
 
-Server side command line tool
-=============================
-
-Run the createtable.sql under /usr/share/darkserver to create table structure.
-
-Run the darkserver-import on the rpms to record build-id details of various ELF
-files. You have to configure the database server details in the
-/etc/darkserver/darkserver.conf file before using the above command.
-
-Example:
-$ python darkserver-import -r /tmp/attica-0.2.0-1.fc15.x86_64.rpm -d fedora-15-x86_64
-
-
 Web server
 ==========
 
-First setup the database details in READONLY access at /etc/darkserver/darkserverweb.conf
+First setup the database details in access at /etc/darkserver/darkserverweb.conf
 
 To start the server use the following command:
 
@@ -40,3 +27,8 @@ $ python manage.py runserver 8080
 This will start the server at port 8080. If you want to start the server in a
 different port you can provide it as a command line argument.
 
+
+Koji Plugin
+===========
+You can setup the koji-plugin in the koji-hub. Provide the same database details
+to populate the database.
