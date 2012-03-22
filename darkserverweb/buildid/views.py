@@ -34,7 +34,11 @@ def index(request):
     """
     The index page
     """
-    data = open('/usr/share/darkserver/static/index.html').read()
+    if os.path.isfile('/usr/share/darkserver/static/index.html'):
+        path = '/usr/share/darkserver/static/index.html' # pragma: no cover
+    else:
+        path = '../static/index.html'
+    data = open(path).read()
     return HttpResponse(data)
 
 def serverversion(request):
