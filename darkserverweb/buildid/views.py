@@ -7,6 +7,7 @@
 # option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
 # the full text of the license.
 from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponseServerError
 import json
 from dark_api import *
 
@@ -61,7 +62,7 @@ def view500(request):
     else:
         path = '../static/500.html'
     data = open(path).read()
-    return HttpResponse(data)
+    return HttpResponseServerError(data)
 
 
 def serverversion(request):
