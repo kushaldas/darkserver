@@ -1,3 +1,7 @@
 *.pyc
 *.wpr
 *.wpu
+darkserverweb/.coverage
+build/
+dist/
+newplug
