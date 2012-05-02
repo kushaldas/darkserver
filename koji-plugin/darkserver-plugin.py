@@ -121,6 +121,7 @@ def parserpm(destdir, path, distro="fedora"):
         for sql in result:
             cursor.execute(sql)
         conn.commit()
+        conn.close()
 
         logging.getLogger('koji.plugin.darkserver').info(filename)
     except Exception, e:
@@ -157,6 +158,7 @@ def run_dark_command(cbtype, *args, **kws):
             parserpm(destdir, rpm, tag_name)
         except Exception, error:
             logging.getLogger('koji.plugin.darkserver').error(str(error))
+        #Remove the temp dir
         removedir(destdir)
 
 
