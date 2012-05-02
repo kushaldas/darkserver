@@ -79,6 +79,10 @@ def parserpm(destdir, path, distro="fedora"):
     path = path.strip()
     filename = os.path.basename(path)
 
+    #Skip kernel rpms
+    if filename.startswith('kernel-'):
+        return
+
 
     #Extract the rpm
     cmd = 'rpmdev-extract -C %s %s' % (destdir, path)
