@@ -1,7 +1,17 @@
-*.pyc
-*.wpr
-*.wpu
-darkserverweb/.coverage
-build/
-dist/
-newplug
+# Clojure ignores
+/target
+/lib
+/classes
+/checkouts
+pom.xml
+*.jar
+*.class
+.lein-deps-sum
+.lein-failures
+.lein-plugins
+
+# Editor ignores
+*~
+.#*
+\#*#
+
