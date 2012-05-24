@@ -1,2 +1,3 @@
  * Distribute data submission
  * Sync with koji builds using cron
+ * Provide stripped ELF with only SYMTAB on demand
