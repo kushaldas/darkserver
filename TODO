@@ -1,3 +1,13 @@
+ Current requirements
+ ====================
+
+     * Have a play system to provide the same API as in django based server
+     * API Call : /serverversion
+     * API Call: /buildids/<id1>,<id2>
+     * API Call: /rpm2buildids/rpmname
+
+
+
  * Distribute data submission
  * Sync with koji builds using cron
  * Provide stripped ELF with only SYMTAB on demand
