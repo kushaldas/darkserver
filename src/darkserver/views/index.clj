@@ -1,6 +1,6 @@
 (ns darkserver.views.index
-  (:require [noir.response :as resp])
-  (:use [noir.core :only [defpage]]))
+  (:use [noir.core :only [defpage]]
+        [ring.util.response :only [resource-response]]))
 
 (defpage "/" []
-  (resp/redirect "/index.html"))
+  (slurp (:body (resource-response "/public/index.html"))))
