@@ -17,4 +17,4 @@
                   [:rpm_name :rpm]
                   [:elfname :elf]
                   :distro)
-          (where {:build_id id})))
+          (where {:build_id [in (into () (.split id ","))]})))

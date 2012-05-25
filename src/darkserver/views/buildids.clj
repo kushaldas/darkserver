@@ -3,5 +3,5 @@
   (:use [darkserver.models.buildids]
         [noir.core :only [defpage]]))
 
-(defpage "/buildids/:id" {:keys [id]}
+(defpage [:get ["/buildids/:id" :id #".*"]] {:keys [id]}
   (resp/json (search-buildid id)))
