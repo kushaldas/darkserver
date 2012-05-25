@@ -3,7 +3,9 @@
   (:use [darkserver.models.buildids]
         [noir.core :only [defpage]]))
 
-(defpage [:get ["/rpm2buildids/:id" :id #".*"]] {:keys [id]}
+(defpage [:get ["/rpm2buildids/:id"
+                :id #"\p{Alnum}+-[\p{Alnum}.]+-[\p{Alnum}.]+"]]
+  {:keys [id]}
   (resp/json
    (map (fn [result]
           {:buildid (result :buildid),

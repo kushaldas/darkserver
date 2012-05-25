@@ -3,7 +3,8 @@
   (:use [darkserver.models.buildids]
         [noir.core :only [defpage]]))
 
-(defpage [:get ["/buildids/:id" :id #".*"]] {:keys [id]}
+(defpage [:get ["/buildids/:id" :id #"\p{XDigit}+[,\p{XDigit}+]*"]]
+  {:keys [id]}
   (resp/json
    (map (fn [result]
           {:buildid (result :buildid),
