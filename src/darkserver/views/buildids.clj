@@ -4,4 +4,10 @@
         [noir.core :only [defpage]]))
 
 (defpage [:get ["/buildids/:id" :id #".*"]] {:keys [id]}
-  (resp/json (search-buildid id)))
+  (resp/json
+   (map (fn [result]
+          {:buildid (result :buildid),
+           :rpm (result :rpm),
+           :elf (str (result :instpath) "/" (result :elfname)),
+           :distro (result :distro)})
+        (search-buildid id))))

@@ -8,6 +8,7 @@
   (entity-fields :build_id
                  :rpm_name
                  :elfname
+                 :instpath
                  :distro)
   (database db))
 
@@ -15,6 +16,7 @@
   (select build-ids
           (fields [:build_id :buildid]
                   [:rpm_name :rpm]
-                  [:elfname :elf]
+                  :elfname
+                  :instpath
                   :distro)
           (where {:build_id [in (into () (.split id ","))]})))
