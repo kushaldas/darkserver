@@ -1,11 +1,11 @@
 (ns darkserver.models
-  (:use darkserver.utils
-        korma.db))
+  (:require [darkserver.utils :as utils])
+  (:use korma.db))
 
 (declare db)
 
 (defn read-config-into [cfg filename]
-  (if (file-exists? filename)
+  (if (utils/file-exists? filename)
     (merge cfg
            (with-in-str (slurp filename)
              (read)))
