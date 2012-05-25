@@ -7,6 +7,7 @@
                  [korma "0.3.0-beta7"]
                  [mysql/mysql-connector-java "5.1.20"]
                  [noir "1.2.1"]]
+  :dev-dependencies [[org.clojure/tools.trace "0.7.3"]]
   :plugins [[lein-immutant "0.7.2"]
             [lein-noir "1.2.1"]
             [lein-swank "1.4.4"]]
