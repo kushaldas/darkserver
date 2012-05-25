@@ -22,11 +22,11 @@
           (where {:build_id [in (into () (.split id ","))]})))
 
 
-(defn search-rpm [id]
+(defn search-rpm [rpm]
   (select build-ids
           (fields [:build_id :buildid]
                   [:rpm_name :rpm]
                   :elfname
                   :instpath
                   :distro)
-          (where {:rpm_name id})))
+          (where {:rpm_name rpm})))
