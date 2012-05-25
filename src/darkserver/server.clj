@@ -1,7 +1,8 @@
 (ns darkserver.server
   (:require [noir.server :as server]
             [noir.statuses :as statuses])
-  (:use [ring.util.response :only [resource-response]]))
+  (:use darkserver.models
+        [ring.util.response :only [resource-response]]))
 
 (server/load-views "src/darkserver/views/")
 
@@ -11,5 +12,7 @@
 (defn -main [& m]
   (let [mode (keyword (or (first m) :dev))
         port (Integer. (get (System/getenv) "PORT" "8080"))]
+    ; TODO: find a way to initialize db pool properly here
+    ; (initialize)
     (server/start port {:mode mode
                         :ns 'darkserver})))

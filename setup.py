@@ -18,6 +18,7 @@ setup(name='darkserver',
       data_files=[
           ('/etc/koji-hub/plugins/', ['koji-plugin/darkserver.conf']),
           ('/usr/lib/koji-hub-plugins/', ['koji-plugin/darkserver-plugin.py']),
+          ('/etc/darkserver/', ['darkserverweb.conf'])
           ]
 
       )
