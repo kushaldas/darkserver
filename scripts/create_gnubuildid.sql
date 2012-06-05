@@ -7,5 +7,5 @@ CREATE TABLE buildid_gnubuildid (
     distro varchar(100)
 );
 
-CREATE INDEX gnubuildid_id_idx ON dark_gnubuildid (buildid);
-CREATE INDEX gnubuildid_rpm_idx ON dark_gnubuildid (rpm_name);
+CREATE INDEX gnubuildid_id_idx ON buildid_gnubuildid (build_id(45));
+CREATE INDEX gnubuildid_rpm_idx ON buildid_gnubuildid (rpm_name(50));
