@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+import sys
+import redis
+import time
+import koji
+import logging
+from darkdaemon import Daemon
+
+class DarkDaemon(Daemon):
+    def run(self):
+        """
+        The daemon process
+        """
+        kojiurl="http://koji.fedoraproject.org/kojihub"
+        kc = koji.ClientSession(kojiurl, {'debug': False, 'password': None,\
+                            'debug_xmlrpc': False, 'user': None})
+        rdb = redis.Redis(host='localhost', port=6379, db=1)
+        while True:
+            time.sleep(5)
+            if rdb.llen("buildqueue") == 0:
+                self.logger.info("Sleeping, no buildqueue job")
+                time.sleep(5)
+                continue
+            url = rdb.rpop("buildqueue")
+            idx = int(url.split('=')[-1])
+            try:
+                res = kc.getBuild(idx)
+                if not res:
+                    #We reached to the new build yet to start
+                    #Time to sleep
+                    self.logger.error("build deleted %s" % idx)
+                    continue
+                if res['state'] == 1:
+                    #completed build now push to our redis queue
+                    rdb.lpush("jobqueue",url)
+                    self.logger.info("in job queue %s" % idx)
+                    continue
+    
+                if res['state'] == 0:
+                    #building state
+                    rdb.lpush("buildqueue",url)
+                    self.logger.info("in build queue %s" % idx)
+                    continue
+    
+            except Exception as err:
+                self.logger.error(err)
+    
+
+if __name__ == '__main__':
+    logging.basicConfig(filename='darkbuildqueue.log', level=logging.INFO,\
+                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+    
+    daemon = None 
+    if len(sys.argv) == 2:
+        logger = logging.getLogger("buildworker")
+        daemon = DarkDaemon('/tmp/darkbuildqueue.pid', logger)
+        if 'start' == sys.argv[1]:
+            daemon.start()
+        elif 'stop' == sys.argv[1]:
+            daemon.stop()
+        elif 'restart' == sys.argv[1]:
+            daemon.restart()
+        else:
+            print "Unknown command"
+            sys.exit(2)
+        sys.exit(0)
+    if len(sys.argv) == 3:
+        if 'start' == sys.argv[1]:
+            logger = logging.getLogger("buildworker%s" % sys.argv[2])
+            daemon = DarkDaemon('/tmp/darkbuildqueue%s.pid' % sys.arv[2], logger)
+            daemon.start()
+            sys.exit(0)
+    else:
+        print "usage: %s start|stop|restart" % sys.argv[0]
+        sys.exit(2)
