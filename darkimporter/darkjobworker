@@ -6,6 +6,7 @@ import koji
 import stat
 import json
 import redis
+import MySQLdb
 import logging
 import requests
 import tempfile
@@ -118,7 +119,7 @@ def parserpm(destdir, path, distro="fedora"):
         except Exception, error:
             logger.error(error)
 
-    #config = getconfig()
+    config = getconfig()
     try:
 
         conn = MySQLdb.connect(config['HOST'], config['USER'], config['PASSWORD'], config['DB'])
@@ -170,6 +171,10 @@ def do_buildid_import(mainurl):
         name = link.get('href')
         if name.endswith('.rpm') and not name.endswith('.src.rpm'):
             rpm = name.split('/')[-1]
+            if rpm.endswith('noarch.rpm'): #No need to check noarch
+                return
+            elif rpm.find('-devel-') != -1: #Don't want to process devel packages
+                return 
             #Create the temp dir
             destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
             destdir1 = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
