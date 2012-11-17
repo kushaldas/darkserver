@@ -7,7 +7,7 @@ import os
 
 
 setup(name='darkserver',
-      version='0.5.4',
+      version='0.6',
       description="GNU build-id web service",
       long_description = "GNU build-id web service",
       platforms = ["Linux"],
@@ -15,12 +15,12 @@ setup(name='darkserver',
       author_email="kushaldas@gmail.com",
       url="https://github.com/kushaldas/darkserver",
       license = "http://www.gnu.org/copyleft/gpl.html",
-      packages = ['darkserverweb','darkserverweb.buildid'],
+      packages = ['darkserverweb','darkserverweb.buildid', 'darkimporter'],
       data_files=[('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
-          ('/usr/sbin/', ['darkserver.wsgi']),
-          ('/etc/darkserver/', ['darkserverweb/settings.py','darkserverweb.conf']),
-          ('/etc/koji-hub/plugins/', ['koji-plugin/darkserver.conf']),
-          ('/usr/lib/koji-hub-plugins/', ['koji-plugin/darkserver-plugin.py']),
+          ('/usr/sbin/', ['darkserver.wsgi', 'darkbuildqueue',\
+                          'darkjobworker','darkproducer']),
+          ('/etc/darkserver/', ['darkserverweb/settings.py','darkserverweb.conf',\
+                                'data/dark-distros.json', 'data/darkjobworker.conf']),
           ('/usr/share/darkserver/static', ['static/index.html','static/404.html', \
                                             'static/500.html']),]
 

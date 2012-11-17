@@ -1,12 +1,13 @@
 include darkserver.wsgi
 include darkserver-httpd.conf
 include darkserverweb.conf
+include data/*.json
+include data/*.conf
 include setup.py
 include README
 include MANIFEST.in
 include darkserverweb/*.py
+include darkimporter/*.py
 include darkserverweb/buildid/*.py
-include koji-plugin/darkserver-plugin.py
-include koji-plugin/darkserver.conf
 include static/*.*
 include static/style.css
