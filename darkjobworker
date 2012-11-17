@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+import os
+import sys
+import time
+import logging
+
+
+from darkimporter.darkdaemon import Daemon
+from darkimporter.libimporter import do_buildid_import
+from retask.queue import Queue
+from retask.task import Task
+
+
+class DarkDaemon(Daemon):
+    def run(self):
+        """
+        The daemon process
+        """
+        jobqueue = Queue('jobqueue')
+        jobqueue.connect()
+        while True:
+            if jobqueue.length == 0:
+                self.logger.info("Sleeping, no jobqueue job")
+                time.sleep(60)
+                continue
+            try:
+                task = jobqueue.dequeue()
+                url = task.data['url']
+                idx = task.data['jobid']
+                
+                self.logger.info("Import started %s" % idx)
+                do_buildid_import(url, idx, self.logger)
+                self.logger.info("Import finished %s" % idx)
+                
+            except Exception as err:
+                self.logger.exception(err)
+                
+
+if __name__ == '__main__':
+    logging.basicConfig(filename='/tmp/darkjobqueue.log', level=logging.INFO,\
+                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+    daemon = None 
+
+    if len(sys.argv) == 2:
+        logger = logging.getLogger("jobworker")
+        daemon = DarkDaemon('/tmp/darkjobqueue.pid', logger)
+        if 'start' == sys.argv[1]:
+            daemon.start()
+        elif 'stop' == sys.argv[1]:
+            daemon.stop()
+        elif 'restart' == sys.argv[1]:
+            daemon.restart()
+        else:
+            print "Unknown command"
+            sys.exit(2)
+        sys.exit(0)
+    if len(sys.argv) == 3:
+        logger = logging.getLogger("jobworker%s" % sys.argv[2])
+        daemon = DarkDaemon('/tmp/darkjobqueue%s.pid' % sys.argv[2], logger)
+        if 'start' == sys.argv[1]:
+            daemon.start()
+        elif 'stop' == sys.argv[1]:
+            daemon.stop() 
+        sys.exit(0)
+    else:
+        print "usage: %s start|stop|restart" % sys.argv[0]
+        sys.exit(2)
