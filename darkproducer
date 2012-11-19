@@ -4,6 +4,7 @@ import koji
 import logging
 from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import produce_jobs
+from darkimporter.libimporter import create_rundir
 
 class DarkDaemon(Daemon):
     def run(self):
@@ -17,20 +18,17 @@ if __name__ == '__main__':
     logging.basicConfig(filename='/tmp/darkproducer.log', level=logging.INFO,
                         format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
     daemon = None 
+    create_rundir()
     if len(sys.argv) >= 2:
         logger = logging.getLogger("producer")
-        daemon = DarkDaemon('/tmp/darkproducer.pid', logger)
+        daemon = DarkDaemon('/var/run/darkserver/darkproducer.pid', logger)
         
         if 'start' == sys.argv[1]:
             daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            daemon.restart()
         else:
             print "Unknown command"
             sys.exit(2)
         sys.exit(0)
     else:
-        print "usage: %s start|stop|restart" % sys.argv[0]
+        print "usage: %s start" % sys.argv[0]
         sys.exit(2)

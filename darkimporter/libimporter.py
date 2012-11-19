@@ -15,6 +15,18 @@ from retask.queue import Queue
 from retask.task import Task
 from BeautifulSoup import BeautifulSoup
 
+def check_shutdown():
+    """
+    Check for shutdown for a gracefull exit.
+    """
+    pid = str(os.getpid())
+    return os.path.exists('/var/run/darkserver/%s.shutdown' % pid)  
+
+def create_rundir():
+    """
+    Create the required directory as /var/run/darkserver
+    """
+    system('mkdir -p /var/run/darkserver')
 
 
 def downloadrpm(url, path):
@@ -207,6 +219,8 @@ def produce_jobs(logger, idx):
     buildqueue = Queue('buildqueue')
     buildqueue.connect()
     while True:
+        if check_shutdown():
+            break
         try:
             res = kc.getBuild(idx)
             url = kojiurl + 'koji/buildinfo?buildID=%s' % idx
@@ -252,6 +266,8 @@ def monitor_buildqueue(logger):
     buildqueue = Queue('buildqueue')        
     buildqueue.connect()
     while True:
+        if check_shutdown():
+            break
         try:
             time.sleep(60)
             length = buildqueue.length

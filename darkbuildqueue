@@ -3,6 +3,7 @@ import sys
 import logging
 from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import monitor_buildqueue
+from darkimporter.libimporter import create_rundir
 
 class DarkDaemon(Daemon):
     def run(self):
@@ -17,15 +18,12 @@ if __name__ == '__main__':
                         format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
     
     daemon = None 
+    create_rundir()
     if len(sys.argv) == 2:
         logger = logging.getLogger("buildworker")
-        daemon = DarkDaemon('/tmp/darkbuildqueue.pid', logger)
+        daemon = DarkDaemon('/var/run/darkserver/darkbuildqueue.pid', logger)
         if 'start' == sys.argv[1]:
             daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            daemon.restart()
         else:
             print "Unknown command"
             sys.exit(2)
@@ -33,9 +31,9 @@ if __name__ == '__main__':
     if len(sys.argv) == 3:
         if 'start' == sys.argv[1]:
             logger = logging.getLogger("buildworker%s" % sys.argv[2])
-            daemon = DarkDaemon('/tmp/darkbuildqueue%s.pid' % sys.arv[2], logger)
+            daemon = DarkDaemon('/var/run/darkserver/darkbuildqueue%s.pid' % sys.arv[2], logger)
             daemon.start()
             sys.exit(0)
     else:
-        print "usage: %s start|stop|restart" % sys.argv[0]
+        print "usage: %s start" % sys.argv[0]
         sys.exit(2)

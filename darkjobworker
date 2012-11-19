@@ -6,7 +6,8 @@ import logging
 
 
 from darkimporter.darkdaemon import Daemon
-from darkimporter.libimporter import do_buildid_import
+from darkimporter.libimporter import do_buildid_import, check_shutdown
+from darkimporter.libimporter import create_rundir
 from retask.queue import Queue
 from retask.task import Task
 
@@ -19,6 +20,9 @@ class DarkDaemon(Daemon):
         jobqueue = Queue('jobqueue')
         jobqueue.connect()
         while True:
+            if check_shutdown():
+                os.remove(self.pidfile)
+                break
             if jobqueue.length == 0:
                 self.logger.info("Sleeping, no jobqueue job")
                 time.sleep(60)
@@ -32,7 +36,7 @@ class DarkDaemon(Daemon):
                 do_buildid_import(url, idx, self.logger)
                 self.logger.info("Import finished %s" % idx)
                 
-            except Exception as err:
+            except Exception, err:
                 self.logger.exception(err)
                 
 
@@ -40,28 +44,24 @@ if __name__ == '__main__':
     logging.basicConfig(filename='/tmp/darkjobqueue.log', level=logging.INFO,\
                         format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
     daemon = None 
-
+    create_rundir()
     if len(sys.argv) == 2:
         logger = logging.getLogger("jobworker")
-        daemon = DarkDaemon('/tmp/darkjobqueue.pid', logger)
+        daemon = DarkDaemon('/var/run/darkserver/darkjobqueue.pid', logger)
         if 'start' == sys.argv[1]:
             daemon.start()
-        elif 'stop' == sys.argv[1]:
-            daemon.stop()
-        elif 'restart' == sys.argv[1]:
-            daemon.restart()
         else:
             print "Unknown command"
             sys.exit(2)
         sys.exit(0)
     if len(sys.argv) == 3:
         logger = logging.getLogger("jobworker%s" % sys.argv[2])
-        daemon = DarkDaemon('/tmp/darkjobqueue%s.pid' % sys.argv[2], logger)
+        daemon = DarkDaemon('/var/run/darkserver/darkjobqueue%s.pid' % sys.argv[2], logger)
         if 'start' == sys.argv[1]:
             daemon.start()
         elif 'stop' == sys.argv[1]:
             daemon.stop() 
         sys.exit(0)
     else:
-        print "usage: %s start|stop|restart" % sys.argv[0]
+        print "usage: %s start" % sys.argv[0]
         sys.exit(2)
