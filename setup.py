@@ -20,7 +20,8 @@ setup(name='darkserver',
           ('/usr/sbin/', ['darkserver.wsgi', 'darkbuildqueue',\
                           'darkjobworker','darkproducer']),
           ('/etc/darkserver/', ['darkserverweb/settings.py','darkserverweb.conf',\
-                                'data/dark-distros.json', 'data/darkjobworker.conf']),
+                                'data/dark-distros.json', 'data/darkjobworker.conf',\
+                                'data/redis_server.json']),
           ('/usr/share/darkserver/static', ['static/index.html','static/404.html', \
                                             'static/500.html']),]
 
