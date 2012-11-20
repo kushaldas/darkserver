@@ -15,6 +15,37 @@ from retask.queue import Queue
 from retask.task import Task
 from BeautifulSoup import BeautifulSoup
 
+
+def get_redis_config():
+    """
+    Get the server configuration as a dict
+    """
+    path = './data/redis_server.json'
+    if not os.path.exists(path):
+        path = '/etc/darkserver/redis_server.json'
+
+    try:
+        with open(path) as fobj:
+            config = json.load(fobj)
+            return config
+    except Exception, e:
+        logging.getLogger('koji.plugin.darkserver').exception(str(e))
+    return None
+
+
+def redis_connection(logger):
+    """
+    Returns the rdb object.
+    """
+    try:
+        config = get_redis_config()
+        rdb = redis.Redis(config['host'], config['port'], config['db'],\
+                             config['password'])
+        return rdb
+    except Exception, e:
+        logger.exception(str(e))
+        return
+
 def log_status(name, text, logger):
     """
     Saves the status for the given name in redis.
@@ -23,9 +54,10 @@ def log_status(name, text, logger):
     :arg text: Text to be saved
     """
     try:
-        config = get_redis_config()
-        rdb = redis.Redis(config['host'], config['port'], config['db'],\
-                             config['password'])      
+        rdb = redis_connection()
+        if not rdb:
+            logger.error("redis connection is missing")
+            return None
         pid = str(os.getpid())
         key = "%s:%s" % (name, pid)
         rdb.set(key, text)
@@ -39,9 +71,10 @@ def remove_redis_keys(name, logger):
     Removes the temporary statuses
     """
     try:
-        config = get_redis_config()
-        rdb = redis.Redis(config['host'], config['port'], config['db'],\
-                             config['password'])      
+        rdb = redis_connection()
+        if not rdb:
+            logger.error("redis connection is missing")
+            return None     
         pid = str(os.getpid())
         key = "%s:%s" % (name, pid)
         rdb.delete(key)
@@ -55,7 +88,7 @@ def check_shutdown():
     Check for shutdown for a gracefull exit.
     """
     pid = str(os.getpid())
-    return os.path.exists('/var/run/darkserver/%s.shutdown' % pid)  
+    return os.path.exists('/var/run/darkserver/%s.shutdown' % pid)
 
 def create_rundir():
     """
@@ -129,21 +162,6 @@ def system(cmd):
     out, err = ret.communicate()
     return out
 
-def get_redis_config():
-    """
-    Get the server configuration as a dict
-    """
-    path = './data/redis_server.json'
-    if not os.path.exists(path):
-        path = '/etc/darkserver/redis_server.json'
-
-    try:
-        with open(path) as fobj:
-            config = json.load(fobj)
-            return config
-    except Exception, e:
-        logging.getLogger('koji.plugin.darkserver').exception(str(e))
-    return None
 
 
 def getconfig():
@@ -276,13 +294,11 @@ def produce_jobs(logger, idx):
     buildqueue = Queue('buildqueue')
     buildqueue.connect()
     #lastbuild = {'id':None, 'time':None}
-    try:
-        config = get_redis_config()
-        rdb = redis.Redis(config['host'], config['port'], config['db'],\
-                             config['password'])
-    except Exception, e:
-        logger.exception(str(e))
-        return
+    rdb = redis_connection()
+    if not rdb:
+        logger.error("redis connection is missing")
+        rdb.set('darkproducer-status', '0')
+        return None
     rdb.set('darkproducer-id', idx)
     while True:
         if check_shutdown():
@@ -346,13 +362,11 @@ def monitor_buildqueue(logger):
     jobqueue.connect()
     buildqueue = Queue('buildqueue')        
     buildqueue.connect()
-    try:
-        config = get_redis_config()
-        rdb = redis.Redis(config['host'], config['port'], config['db'],\
-                             config['password'])
-    except Exception, e:
-        logger.exception(str(e))
-        return
+    rdb = redis_connection()
+    if not rdb:
+        logger.error("redis connection is missing")
+        rdb.set('darkbuildqueue-status', '0')
+        return None
     rdb.set('darkbuildqueue-status', '1')
     while True:
         if check_shutdown():
