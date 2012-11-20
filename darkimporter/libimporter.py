@@ -322,7 +322,7 @@ def produce_jobs(logger, idx):
 
             if res['state'] == 0:
                 #building state
-                info = {'url': url, 'jobid': idx, 'kojiurl': kojiurl}
+                info = {'url': url, 'jobid': idx, 'kojiurl': kojiurl2}
                 task = Task(info)
                 buildqueue.enqueue(task)
                 logger.info("In build queue %s" % idx)
