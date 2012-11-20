@@ -262,7 +262,6 @@ def do_buildid_import(mainurl, idx, logger):
             removedir(destdir)   
             removedir(destdir1) 
             log_status('darkjobworker', 'Import done for %s' % rpm, logger)
-    remove_redis_keys('darkjobworker', logger)
 
 
 def produce_jobs(logger, idx):
@@ -317,7 +316,7 @@ def produce_jobs(logger, idx):
                 task = Task(info)
                 jobqueue.enqueue(task)
                 logger.info("In job queue %s" % idx)
-		rdb.incr('darkproducer-id')
+                rdb.incr('darkproducer-id')
                 continue
 
             if res['state'] == 0:

@@ -7,7 +7,8 @@ import logging
 
 from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import do_buildid_import, check_shutdown
-from darkimporter.libimporter import create_rundir
+from darkimporter.libimporter import create_rundir, log_status
+from darkimporter.libimporter import remove_redis_keys
 from retask.queue import Queue
 from retask.task import Task
 
@@ -19,6 +20,7 @@ class DarkDaemon(Daemon):
         """
         jobqueue = Queue('jobqueue')
         jobqueue.connect()
+        log_status('darkjobworker', 'Starting worker module' logger)
         while True:
             if check_shutdown():
                 os.remove(self.pidfile)
@@ -38,6 +40,7 @@ class DarkDaemon(Daemon):
                 
             except Exception, err:
                 self.logger.exception(err)
+        remove_redis_keys('darkjobworker', self.logger)
                 
 
 if __name__ == '__main__':
