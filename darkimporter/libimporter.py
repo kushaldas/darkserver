@@ -88,7 +88,17 @@ def check_shutdown():
     Check for shutdown for a gracefull exit.
     """
     pid = str(os.getpid())
-    return os.path.exists('/var/run/darkserver/%s.shutdown' % pid)
+    rdb = redis_connection()
+    if not rdb:
+        logger.error("redis connection is missing")
+        return False
+    shutdown = rdb.get('shutdown:%s' % pid)
+    if shutdown:
+        rdb.delete('shutdown:%s' % pid)
+        return True
+    else:
+        return False
+
 
 def create_rundir():
     """
