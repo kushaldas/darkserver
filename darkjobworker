@@ -20,9 +20,9 @@ class DarkDaemon(Daemon):
         """
         jobqueue = Queue('jobqueue')
         jobqueue.connect()
-        log_status('darkjobworker', 'Starting worker module' logger)
+        log_status('darkjobworker', 'Starting worker module', logger)
         while True:
-            if check_shutdown():
+            if check_shutdown(logger):
                 os.remove(self.pidfile)
                 break
             if jobqueue.length == 0:

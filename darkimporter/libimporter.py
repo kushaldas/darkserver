@@ -54,7 +54,7 @@ def log_status(name, text, logger):
     :arg text: Text to be saved
     """
     try:
-        rdb = redis_connection()
+        rdb = redis_connection(logger)
         if not rdb:
             logger.error("redis connection is missing")
             return None
@@ -71,7 +71,7 @@ def remove_redis_keys(name, logger):
     Removes the temporary statuses
     """
     try:
-        rdb = redis_connection()
+        rdb = redis_connection(logger)
         if not rdb:
             logger.error("redis connection is missing")
             return None     
@@ -83,7 +83,7 @@ def remove_redis_keys(name, logger):
         return
 
 
-def check_shutdown():
+def check_shutdown(logger):
     """
     Check for shutdown for a gracefull exit.
     """
@@ -304,14 +304,14 @@ def produce_jobs(logger, idx):
     buildqueue = Queue('buildqueue')
     buildqueue.connect()
     #lastbuild = {'id':None, 'time':None}
-    rdb = redis_connection()
+    rdb = redis_connection(logger)
     if not rdb:
         logger.error("redis connection is missing")
         rdb.set('darkproducer-status', '0')
         return None
     rdb.set('darkproducer-id', idx)
     while True:
-        if check_shutdown():
+        if check_shutdown(logger):
             break
         try:
             rdb.set('darkproducer-status', '1')
@@ -372,14 +372,14 @@ def monitor_buildqueue(logger):
     jobqueue.connect()
     buildqueue = Queue('buildqueue')        
     buildqueue.connect()
-    rdb = redis_connection()
+    rdb = redis_connection(logger)
     if not rdb:
         logger.error("redis connection is missing")
         rdb.set('darkbuildqueue-status', '0')
         return None
     rdb.set('darkbuildqueue-status', '1')
     while True:
-        if check_shutdown():
+        if check_shutdown(logger):
             break
         try:
             time.sleep(60)
