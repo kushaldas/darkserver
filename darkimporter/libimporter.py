@@ -15,6 +15,41 @@ from retask.queue import Queue
 from retask.task import Task
 from BeautifulSoup import BeautifulSoup
 
+def log_status(name, text, logger):
+    """
+    Saves the status for the given name in redis.
+
+    :arg name: Name of the process
+    :arg text: Text to be saved
+    """
+    try:
+        config = get_redis_config()
+        rdb = redis.Redis(config['host'], config['port'], config['db'],\
+                             config['password'])      
+        pid = str(os.getpid())
+        key = "%s:%s" % (name, pid)
+        rdb.set(key, text)
+        return True
+    except Exception, e:
+        logger.exception(str(e))
+        return
+
+def remove_redis_status(name, logger):
+    """
+    Removes the temporary statuses
+    """
+    try:
+        config = get_redis_config()
+        rdb = redis.Redis(config['host'], config['port'], config['db'],\
+                             config['password'])      
+        pid = str(os.getpid())
+        key = "%s:%s" % (name, pid)
+        rdb.delete(key)
+    except Exception, e:
+        logger.exception(str(e))
+        return
+
+
 def check_shutdown():
     """
     Check for shutdown for a gracefull exit.
@@ -94,6 +129,23 @@ def system(cmd):
     out, err = ret.communicate()
     return out
 
+def get_redis_config():
+    """
+    Get the server configuration as a dict
+    """
+    path = './data/redis_server.json'
+    if not os.path.exists(path):
+        path = '/etc/darkserver/redis_server.json'
+
+    try:
+        with open(path) as fobj:
+            config = json.load(fobj)
+            return config
+    except Exception, e:
+        logging.getLogger('koji.plugin.darkserver').exception(str(e))
+    return None
+
+
 def getconfig():
     """
     Get the server configuration as a dict
@@ -124,6 +176,7 @@ def parserpm(destdir, path, distro="fedora", logger=None):
     path = path.strip()
     filename = os.path.basename(path)
 
+    logger.info('Extracting: %s' % path)
     #Extract the rpm
     cmd = 'rpmdev-extract -C %s %s' % (destdir, path)
     
@@ -197,14 +250,19 @@ def do_buildid_import(mainurl, idx, logger):
             destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
             destdir1 = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
             rpm = os.path.join(destdir1, rpm)
+            logger.info('downloading %s' % rpm)
+            log_status('darkjobworker', 'Downloading %s' % rpm, logger)
             downloadrpm(name, rpm)
             try:
+                log_status('darkjobworker', 'Parsing %s' % rpm, logger)
                 parserpm(destdir, rpm, distro, logger)
             except Exception, error:
                 logger.exception(str(error))
             #Remove the temp dir
             removedir(destdir)   
             removedir(destdir1) 
+            log_status('darkjobworker', 'Import done for %s' % rpm, logger)
+    remove_redis_keys('darkjobworker', logger)
 
 
 def produce_jobs(logger, idx):
@@ -218,13 +276,36 @@ def produce_jobs(logger, idx):
     jobqueue.connect()
     buildqueue = Queue('buildqueue')
     buildqueue.connect()
+    #lastbuild = {'id':None, 'time':None}
+    try:
+        config = get_redis_config()
+        rdb = redis.Redis(config['host'], config['port'], config['db'],\
+                             config['password'])
+    except Exception, e:
+        logger.exception(str(e))
+        return
+    rdb.set('darkproducer-id', idx)
     while True:
         if check_shutdown():
             break
         try:
+            rdb.set('darkproducer-status', '1')
+            idx = int(rdb.get('darkproducer-id'))
             res = kc.getBuild(idx)
             url = kojiurl + 'koji/buildinfo?buildID=%s' % idx
             if not res:
+                #FIXME!!
+                #http://koji.fedoraproject.org/koji/buildinfo?buildID=367374
+                #missing build from db :(
+                #if lastbuild['id'] != idx:
+                #    lastbuild['id'] = idx
+                #    lastbuild['time'] = time.time.now()
+                #else:
+                #    diff = time.time.now() - lastbuild['time']
+                #    if diff > 300:
+                #We have a buildid stuck, raise alarm
+                
+
                 #We reached to the new build yet to start
                 #Time to sleep
                 logger.info("Sleeping with %s" % idx)
@@ -236,7 +317,7 @@ def produce_jobs(logger, idx):
                 task = Task(info)
                 jobqueue.enqueue(task)
                 logger.info("In job queue %s" % idx)
-                idx += 1
+                rdb.incr('darkproducer-id')
                 continue
 
             if res['state'] == 0:
@@ -250,8 +331,9 @@ def produce_jobs(logger, idx):
             else:
                 idx += 1
 
-        except Exception as err:
-            logger.info(err)
+        except Exception, err:
+            logger.exception(str(err))
+    rdb.set('darkproducer-status', '0')
 
 
 def monitor_buildqueue(logger):
@@ -265,6 +347,14 @@ def monitor_buildqueue(logger):
     jobqueue.connect()
     buildqueue = Queue('buildqueue')        
     buildqueue.connect()
+    try:
+        config = get_redis_config()
+        rdb = redis.Redis(config['host'], config['port'], config['db'],\
+                             config['password'])
+    except Exception, e:
+        logger.exception(str(e))
+        return
+    rdb.set('darkbuildqueue-status', '1')
     while True:
         if check_shutdown():
             break
@@ -301,4 +391,5 @@ def monitor_buildqueue(logger):
 
         except Exception, err:
             logger.exception(err)
+    rdb.set('darkbuildqueue-status', '0')
 
