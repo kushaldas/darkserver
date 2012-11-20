@@ -34,7 +34,7 @@ def log_status(name, text, logger):
         logger.exception(str(e))
         return
 
-def remove_redis_status(name, logger):
+def remove_redis_keys(name, logger):
     """
     Removes the temporary statuses
     """
@@ -317,7 +317,7 @@ def produce_jobs(logger, idx):
                 task = Task(info)
                 jobqueue.enqueue(task)
                 logger.info("In job queue %s" % idx)
-                rdb.incr('darkproducer-id')
+		rdb.incr('darkproducer-id')
                 continue
 
             if res['state'] == 0:
@@ -326,10 +326,10 @@ def produce_jobs(logger, idx):
                 task = Task(info)
                 buildqueue.enqueue(task)
                 logger.info("In build queue %s" % idx)
-                idx += 1
+                rdb.incr('darkproducer-id')
                 continue
             else:
-                idx += 1
+		rdb.incr('darkproducer-id')
 
         except Exception, err:
             logger.exception(str(err))
