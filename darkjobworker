@@ -9,6 +9,7 @@ from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import do_buildid_import, check_shutdown
 from darkimporter.libimporter import create_rundir, log_status
 from darkimporter.libimporter import remove_redis_keys
+from darkimporter.utils import log
 from retask.queue import Queue
 from retask.task import Task
 
@@ -18,15 +19,15 @@ class DarkDaemon(Daemon):
         """
         The daemon process
         """
+        key = 'darkjobworker:' + str(os.getpid())
         jobqueue = Queue('jobqueue')
         jobqueue.connect()
-        log_status('darkjobworker', 'Starting worker module', logger)
+        log_status('darkjobworker', 'Starting worker module')
         while True:
-            if check_shutdown(logger):
-                os.remove(self.pidfile)
+            if check_shutdown():
                 break
             if jobqueue.length == 0:
-                self.logger.info("Sleeping, no jobqueue job")
+                log(key, "Sleeping, no jobqueue job", 'info')
                 time.sleep(60)
                 continue
             try:
@@ -34,23 +35,20 @@ class DarkDaemon(Daemon):
                 url = task.data['url']
                 idx = task.data['jobid']
                 
-                self.logger.info("Import started %s" % idx)
-                do_buildid_import(url, idx, self.logger)
-                self.logger.info("Import finished %s" % idx)
+                log(key, "Import started %s" % idx, 'info')
+                do_buildid_import(url, idx)
+                log(key, "Import finished %s" % idx, 'info')
                 
             except Exception, err:
-                self.logger.exception(err)
-        remove_redis_keys('darkjobworker', self.logger)
+                log(key, str(err), 'error')
+        remove_redis_keys('darkjobworker')
                 
 
 if __name__ == '__main__':
-    logging.basicConfig(filename='/tmp/darkjobqueue.log', level=logging.INFO,\
-                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
     daemon = None 
     create_rundir()
     if len(sys.argv) == 2:
-        logger = logging.getLogger("jobworker")
-        daemon = DarkDaemon('/var/run/darkserver/darkjobqueue.pid', logger)
+        daemon = DarkDaemon('/var/run/darkserver/darkjobqueue.pid')
         if 'start' == sys.argv[1]:
             daemon.start()
         else:
@@ -58,8 +56,7 @@ if __name__ == '__main__':
             sys.exit(2)
         sys.exit(0)
     if len(sys.argv) == 3:
-        logger = logging.getLogger("jobworker%s" % sys.argv[2])
-        daemon = DarkDaemon('/var/run/darkserver/darkjobqueue%s.pid' % sys.argv[2], logger)
+        daemon = DarkDaemon('/var/run/darkserver/darkjobqueue%s.pid' % sys.argv[2])
         if 'start' == sys.argv[1]:
             daemon.start()
         elif 'stop' == sys.argv[1]:
