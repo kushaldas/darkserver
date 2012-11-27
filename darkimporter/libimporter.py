@@ -91,14 +91,14 @@ def check_shutdown():
     rdb = redis_connection()
     try:
         if not rdb:
-            log(key, 'redis is missing', 'error')
+            log('redis', 'redis is missing', 'error')
             return False
         shutdown = rdb.get('shutdown:%s' % pid)
         if shutdown:
             rdb.delete('shutdown:%s' % pid)
             return True
     except Exception, e:
-        log(key, str(e), 'error')
+        log('redis', str(e), 'error')
     return False
 
 def create_rundir():
