@@ -8,7 +8,7 @@ import logging
 from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import do_buildid_import, check_shutdown
 from darkimporter.libimporter import create_rundir, log_status
-from darkimporter.libimporter import remove_redis_keys
+from darkimporter.libimporter import remove_redis_keys, get_redis_config
 from darkimporter.utils import log
 from retask.queue import Queue
 from retask.task import Task
@@ -20,7 +20,8 @@ class DarkDaemon(Daemon):
         The daemon process
         """
         key = 'darkjobworker:' + str(os.getpid())
-        jobqueue = Queue('jobqueue')
+        config = get_redis_config()
+        jobqueue = Queue('jobqueue', config)
         jobqueue.connect()
         log_status('darkjobworker', 'Starting worker module')
         while True:

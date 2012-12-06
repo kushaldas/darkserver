@@ -308,9 +308,10 @@ def produce_jobs(idx):
     kc = koji.ClientSession(kojiurl2, {'debug': False, 'password': None,\
                         'debug_xmlrpc': False, 'user': None})
 
-    jobqueue = Queue('jobqueue')
+    config = get_redis_config()
+    jobqueue = Queue('jobqueue', config)
     jobqueue.connect()
-    buildqueue = Queue('buildqueue')
+    buildqueue = Queue('buildqueue', config)
     buildqueue.connect()
     #lastbuild = {'id':None, 'time':None}
     rdb = redis_connection()
@@ -377,9 +378,10 @@ def monitor_buildqueue():
     If the build is finished then it goes to the job queue.
     """
     key = 'darkbuildqueue:%s' % str(os.getpid())
-    jobqueue = Queue('jobqueue')
+    config = get_redis_config()
+    jobqueue = Queue('jobqueue', config)
     jobqueue.connect()
-    buildqueue = Queue('buildqueue')
+    buildqueue = Queue('buildqueue', config)
     buildqueue.connect()
     rdb = redis_connection()
     if not rdb:
