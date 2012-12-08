@@ -5,6 +5,7 @@ import redis
 import koji
 import stat
 import json
+import elfdata
 import MySQLdb
 import tempfile
 import subprocess
@@ -139,12 +140,17 @@ def is_elf(filepath):
     """
     Finds if a file is elf or not
     """
-    cmd = "file -k %s" % filepath
-    data = system(cmd)
-    data = data.split(": ")
-    if len(data) > 1:
-        if data[1].startswith('ELF'):
-            return True
+    elf_magic = "7f454c46"
+    fobj = os.lstat(filepath)
+    if (stat.S_ISDIR(fobj.st_mode)):
+        return False
+
+    f = open(filepath, 'rb')
+    s = f.read(4)
+    f.close()
+    py_data = s.encode('hex')
+    if py_data == elf_magic:
+        return True
     return False
 
 
@@ -154,7 +160,7 @@ def find_elf_files(files):
     """
     elfs = []
     for filename in files:
-        if os.path.exists(filename):
+        if os.path.exists(filename) and os.path.isfile(filename):
             if is_elf(filename):
                 elfs.append(filename)
     return elfs
@@ -227,14 +233,16 @@ def parserpm(destdir, path, distro="fedora"):
     result = []
     #run eu-unstrip and parse the result
     for eachfile in elffiles:
-        data = system("eu-unstrip -n -e %s" % eachfile)
+        data = elfdata.get_buildid(eachfile)
+        if not data[0]:
+            continue
         try:
             name = eachfile[dest_len + 1:]
             dirname = "/" + '/'.join(os.path.dirname(name).split('/')[1:])
             sql = "INSERT INTO buildid_gnubuildid VALUES"\
                               " (null, '%s','%s','%s','%s','%s')"
             sql = sql % (os.path.basename(name), dirname, \
-                         data.split(' ')[1].split('@')[0], \
+                         data[0], \
                          filename[:-4], distro)
 
             result.append(sql)
