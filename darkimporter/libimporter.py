@@ -18,6 +18,16 @@ from retask.task import Task
 from BeautifulSoup import BeautifulSoup
 
 
+def get_key(name):
+    """
+    Creates the unique key for the processes
+    """
+    key = "%s:%s" % (name, str(os.getpid()))
+    config = getconfig()
+    key = '%s:%s' % (key, config['UNIQUE'])
+    return key
+
+
 def get_redis_config():
     """
     Get the server configuration as a dict
@@ -56,8 +66,7 @@ def log_status(name, text):
     :arg name: Name of the process
     :arg text: Text to be saved
     """
-    pid = str(os.getpid())
-    key = "%s:%s" % (name, pid)
+    key = get_key(name)
 
     try:
         rdb = redis_connection()
@@ -74,8 +83,7 @@ def remove_redis_keys(name):
     """
     Removes the temporary statuses
     """
-    pid = str(os.getpid())
-    key = "%s:%s" % (name, pid)
+    key = get_key(name)
     try:
         rdb = redis_connection()
         if not rdb:
@@ -201,20 +209,25 @@ def getconfig():
         result['USER'] = config.get('darkserver','user')
         result['PASSWORD'] = config.get('darkserver','password')
         result['HOST'] = config.get('darkserver','host')
-        result['PORT'] = config.get('darkserver','PORT')
+        result['PORT'] = config.get('darkserver','port')
+        result['UNIQUE'] = config.get('darkserver','unique')
     except Exception, e:
         log('getconfig', str(e), 'error')
     return result
 
 
-def parserpm(destdir, path, distro="fedora"):
+def get_unstrip_buildid(filepath):
+    data = system("eu-unstrip -n -e %s" % filepath)
+    return data.split(' ')[1].split('@')[0]
+
+
+def parserpm(destdir, path, key, distro="fedora"):
     """
     parse the rpm and insert data into database
     """
     path = path.strip()
     filename = os.path.basename(path)
 
-    key = 'darkjobworker:' + str(os.getpid())
     log(key, 'Extracting: %s' % path, 'info')
     #Extract the rpm
     cmd = 'rpmdev-extract -C %s %s' % (destdir, path)
@@ -234,6 +247,8 @@ def parserpm(destdir, path, distro="fedora"):
     #run eu-unstrip and parse the result
     for eachfile in elffiles:
         data = elfdata.get_buildid(eachfile)
+        if not data:
+            data = [get_unstrip_buildid(eachfile)]
         if not data[0]:
             continue
         try:
@@ -249,11 +264,10 @@ def parserpm(destdir, path, distro="fedora"):
         except Exception, error:
             log(key, str(error), 'error')
     #Save the result in the database
-    save_result(result)
+    save_result(result, key)
 
 
-def save_result(results):
-    key = 'darkjobworker:' + str(os.getpid())
+def save_result(results, key):
     config = getconfig()
     try:
 
@@ -268,11 +282,10 @@ def save_result(results):
         log(key, str(error), 'error')
 
 
-def do_buildid_import(mainurl, idx):
+def do_buildid_import(mainurl, idx, key):
     """
     Import the buildids from the given Koji URL
     """
-    key = 'darkjobworker:' + str(os.getpid())
     if not mainurl:
         return
     #Guess the distro name
@@ -299,7 +312,7 @@ def do_buildid_import(mainurl, idx):
             downloadrpm(name, rpm)
             try:
                 log_status('darkjobworker', 'Parsing %s' % rpm)
-                parserpm(destdir, rpm, distro)
+                parserpm(destdir, rpm, key, distro)
             except Exception, error:
                 log(key, str(error), 'error')
             #Remove the temp dir
@@ -309,7 +322,7 @@ def do_buildid_import(mainurl, idx):
 
 
 def produce_jobs(idx):
-    key = 'darkproducer:%s' % str(os.getpid())
+    key = get_key('darkproducer')
     log(key, "starting with %s" % str(idx), 'info')
     kojiurl = 'http://koji.fedoraproject.org/'
     kojiurl2 = kojiurl + 'kojihub'
@@ -385,7 +398,7 @@ def monitor_buildqueue():
     If the build is still on then it puts it back to the queue.
     If the build is finished then it goes to the job queue.
     """
-    key = 'darkbuildqueue:%s' % str(os.getpid())
+    key = get_key('darkbuildqueue')
     config = get_redis_config()
     jobqueue = Queue('jobqueue', config)
     jobqueue.connect()
