@@ -10,6 +10,9 @@ from subprocess import Popen, PIPE
 logging.basicConfig(filename='/tmp/darkserver.log', level=logging.INFO,\
                         format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
 
+msgtext = ""
+
+
 def send_mail(toaddr, fromaddr, subject, message):
     """
     Helper function to send email using sendmail.
@@ -35,6 +38,7 @@ def log(name='justlog', text='', logtype='info'):
     :arg text: Text message we need to log.name
     :arg type: Type of the log message
     """
+    global msgtext
     if text:
         logger = logging.getLogger(name)
         if logtype == 'info':
@@ -47,6 +51,8 @@ def log(name='justlog', text='', logtype='info'):
             exc_type, exc_value, exc_traceback = sys.exc_info()
             lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
             message = ''.join(lines)
+            if msgtext:
+                message = '%s\n%s' % (msgtext, message)
             toaddr = get_email_config()
             if toaddr:
                 send_mail(toaddr, 'admin@darkserver.fedoraproject.org', 'ERROR OCCURRED: in darkserver', message)

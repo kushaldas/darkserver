@@ -9,6 +9,7 @@ import elfdata
 import MySQLdb
 import tempfile
 import subprocess
+import utils
 import logging
 import requests
 import ConfigParser
@@ -346,6 +347,7 @@ def produce_jobs(idx):
         try:
             rdb.set('darkproducer-status', '1')
             idx = int(rdb.get('darkproducer-id'))
+            utils.msgtext = "ID: %s" % idx
             res = kc.getBuild(idx)
             url = kojiurl + 'koji/buildinfo?buildID=%s' % idx
             if not res:

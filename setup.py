@@ -7,7 +7,7 @@ import os
 
 
 setup(name='darkserver',
-      version='0.6',
+      version='0.7',
       description="GNU build-id web service",
       long_description = "GNU build-id web service",
       platforms = ["Linux"],
@@ -18,7 +18,7 @@ setup(name='darkserver',
       packages = ['darkserverweb','darkserverweb.buildid', 'darkimporter'],
       data_files=[('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
           ('/usr/sbin/', ['darkserver.wsgi', 'darkbuildqueue',\
-                          'darkjobworker','darkproducer']),
+                          'darkjobworker','darkproducer','darkdashboard']),
           ('/etc/darkserver/', ['darkserverweb/settings.py','darkserverweb.conf',\
                                 'data/dark-distros.json', 'data/darkjobworker.conf',\
                                 'data/redis_server.json']),

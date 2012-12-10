@@ -4,7 +4,7 @@ import sys
 import time
 import logging
 
-
+import darkimporter.utils as utils
 from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import do_buildid_import, check_shutdown
 from darkimporter.libimporter import create_rundir, log_status
@@ -35,7 +35,7 @@ class DarkDaemon(Daemon):
                 task = jobqueue.dequeue()
                 url = task.data['url']
                 idx = task.data['jobid']
-                
+                utils.msgtext = task.data['url']
                 log(key, "Import started %s" % idx, 'info')
                 do_buildid_import(url, idx, key)
                 log(key, "Import finished %s" % idx, 'info')
