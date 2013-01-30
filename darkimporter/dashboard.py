@@ -87,7 +87,7 @@ class Application(Cmd):
             process_id = self.get_process_id('darkbuildqueue')
             if process_id:
                 self.rdb.set('shutdown:%s' % process_id, 1)
-        elif line.statswith('workers'):
+        elif line.startswith('workers'):
             for key in self.rdb.keys('darkjobworker:*'):
                 process_id = key.split(':')[1]
                 self.rdb.set('shutdown:%s' % process_id, 1)
