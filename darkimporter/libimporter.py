@@ -99,15 +99,15 @@ def check_shutdown():
     """
     Check for shutdown for a gracefull exit.
     """
-    pid = str(os.getpid())
+    key = get_key('shutdown')
     rdb = redis_connection()
     try:
         if not rdb:
             log('redis', 'redis is missing', 'error')
             return False
-        shutdown = rdb.get('shutdown:%s' % pid)
+        shutdown = rdb.get(key)
         if shutdown:
-            rdb.delete('shutdown:%s' % pid)
+            rdb.delete(key)
             return True
     except Exception, e:
         log('redis', str(e), 'error')
