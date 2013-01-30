@@ -9,6 +9,7 @@ class Gnubuildid(models.Model):
     build_id = models.TextField()
     rpm_name = models.TextField()
     distro = models.TextField()
+    kojibuildid = models.IntegerField()
 
 class Darkuser(models.Model):
     """
