@@ -91,7 +91,7 @@ class Application(Cmd):
         elif line.startswith('workers'):
             for key in self.rdb.keys('darkjobworker:*'):
                 process_id = key.split(':')[1]
-                unique = line.split(':')[2]
+                unique = key.split(':')[2]
                 self.rdb.set('shutdown:%s:%s' % (process_id, unique), 1)
                 print("Setting shutdown notice to %s" % key)
 
