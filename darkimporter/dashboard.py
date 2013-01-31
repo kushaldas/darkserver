@@ -70,7 +70,7 @@ class Application(Cmd):
         Example calls:
         shutdown darkproducer
         shutdown darkbuildqueue
-        shutdown darkjobworker:8390
+        shutdown darkjobworker:8390:ip
 
         """
         line = line.strip()
@@ -78,7 +78,8 @@ class Application(Cmd):
             return
         if line.startswith('darkjobworker:'):
             process_id = line.split(':')[1]
-            self.rdb.set('shutdown:%s' % process_id, 1)
+            unique = line.split(':')[2]
+            self.rdb.set('shutdown:%s:%s' % (process_id, unique), 1)
         elif line.startswith('darkproducer'):
             process_id = self.get_process_id('darkproducer')
             if process_id:
@@ -90,7 +91,8 @@ class Application(Cmd):
         elif line.startswith('workers'):
             for key in self.rdb.keys('darkjobworker:*'):
                 process_id = key.split(':')[1]
-                self.rdb.set('shutdown:%s' % process_id, 1)
+                unique = line.split(':')[2]
+                self.rdb.set('shutdown:%s:%s' % (process_id, unique), 1)
                 print("Setting shutdown notice to %s" % key)
 
     def print_all_status(self):
