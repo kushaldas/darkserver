@@ -1,10 +1,8 @@
 from django.test import TestCase
 import json
-from xmlrpclib import ServerProxy
 from mock import Mock, patch
 
 import httplib
-from xmlrpclib import getparser, ProtocolError
 
 class DjangoTestClientTransport(object):
     client = None
@@ -52,7 +50,7 @@ class BuildidViewTest(TestCase):
         resp = self.client.get('/serverversion')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
-        self.assertEqual(data['server-version'],'0.5')
+        self.assertEqual(data['server-version'],'0.8')
 
     def test_buildids(self):
         """
@@ -89,18 +87,4 @@ class BuildidViewTest(TestCase):
         url = data['url']
         self.assertEqual(url,'http://koji.fedoraproject.org/packages/foobar/1.0/1.fc16/file.rpm')
 
-    def test_xmlrpcfail(self):
-        """
-        Tests xmlrpcview
-        """
-        resp = self.client.get('/xmlrpc/')
-        self.assertEqual(resp.status_code, 200)
-
-    def test_xmlrpc_multiply(self):
-        """
-        Tests xmlrpcview multiply call
-        """
-        s = self.get_server_proxy()
-        res = s.multiply(2,3)
-        self.assertEqual(res, 6)
 
