@@ -33,13 +33,14 @@ class DarkDaemon(Daemon):
                 continue
             try:
                 task = jobqueue.dequeue()
+                if not task:
+                    continue
                 url = task.data['url']
                 idx = task.data['jobid']
                 utils.msgtext = task.data['url']
                 log(key, "Import started %s" % idx, 'info')
                 do_buildid_import(url, idx, key)
                 log(key, "Import finished %s" % idx, 'info')
-                
             except Exception, err:
                 log(key, str(err), 'error')
         remove_redis_keys('darkjobworker')
