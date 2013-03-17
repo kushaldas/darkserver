@@ -6,7 +6,6 @@
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.  See http://www.gnu.org/copyleft/gpl.html for
 # the full text of the license.
-from buildid.xmlrpcapi import rpc_handler
 from django.conf.urls.defaults import patterns, include, url
 from settings import MEDIA_ROOT
 
@@ -35,6 +34,5 @@ urlpatterns = patterns('',
     url(r'^package/(?P<name>.+)', 'buildid.views.package'),
     #url(r'^package/', 'buildid.views.index'),
     url(r'^serverversion', 'buildid.views.serverversion'),
-    url(r'^xmlrpc/$', rpc_handler),
     
 )
