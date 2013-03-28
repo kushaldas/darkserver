@@ -18,6 +18,16 @@ Requirements
 * koji
 * rpmdevtools
 * mysql server
+* httpd
+* mod_wsgi
+* mysql
+* MySQL-python
+* redis
+* wget
+* python-retask
+* python-cmd2
+* python-requests
+* python-BeautifulSoup
 
 
 Web server
