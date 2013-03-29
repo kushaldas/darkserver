@@ -94,28 +94,6 @@ def get_koji_download_url(pkg_name, \
     return json.dumps({'url':url})
 
 
-def write_info(username, password, data):
-    h = hashlib.new('sha1')
-    h.update(password)
-    password = h.hexdigest()
-    user = Darkuser.objects.filter(name=username,password=password)
-    if len(user) == 1:
-        info = json.loads(data)
-        if type(info) == type([1,2]):
-            for row in info:
-                if len(row) == 5:
-                    g = Gnubuildid()
-                    g.elfname = row[0]
-                    g.instpath = row[1]
-                    g.build_id = row[2]
-                    g.rpm_name = row[3]
-                    g.distro = row[4]
-                    g.save()
-        else:
-            return "Wrong json data " + str(type(info))
-        return "Authenticated, information saved"
-    return "Wrong credentials"
-
 if __name__ == '__main__':
     from pprint import pprint
     pprint(parsepath('/rpm?name=yum&base=105&release=78'))
