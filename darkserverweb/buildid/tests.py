@@ -1,6 +1,7 @@
 from django.test import TestCase
 import json
 from mock import Mock, patch
+from dark_api import parsepath
 
 import httplib
 
@@ -65,26 +66,38 @@ class BuildidViewTest(TestCase):
         """
         Tests index view
         """
-        resp = self.client.get('/rpm2buildids/apr-1.4.5-1.fc16.x86_64')
+        resp = self.client.get('/rpm2buildids/apr-1.4.5-1.fc16.x86_64.rpm')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         self.assertEqual(data[0]['elf'], '/usr/lib64/libapr-1.so.0.4.5')
 
+    def test_404(self):
+        """
+        Tests 404 view
+        """
+        resp = self.client.get('/foobar')
+        self.assertEqual(resp.status_code, 404)
+
     @patch('koji.pathinfo.rpm')
     @patch('koji.ClientSession')
-    def test_package(self,mock_c, mock_2):
+    def test_package(self, mock_c, mock_2):
         """
         Tests index view
         """
         m = mock_c.return_value
-        m.search.return_value = [{'id':1},]
-        m.getRPM.return_value = {'build_id':'32123'}
-        m.getBuild.return_value = {'name':'foobar','version':'1.0','release':'1.fc16'}
+        m.search.return_value = [{'id': 1}, ]
+        m.getRPM.return_value = {'build_id': '32123'}
+        m.getBuild.return_value = {'name': 'foobar', 'version': '1.0', 'release': '1.fc16'}
         mock_2.return_value = 'file.rpm'
         resp = self.client.get('/package/apr-1.4.5-1.fc16.x86_64')
         self.assertEqual(resp.status_code, 200)
         data = json.loads(resp.content)
         url = data['url']
-        self.assertEqual(url,'http://koji.fedoraproject.org/packages/foobar/1.0/1.fc16/file.rpm')
+        self.assertEqual(url, 'http://koji.fedoraproject.org/packages/foobar/1.0/1.fc16/file.rpm')
 
 
+class DarkApiTest(TestCase):
+
+    def test_parse(self):
+        data = parsepath('/rpm?name=yum&base=105&release=78')
+        self.assertEqual(data, ('/rpm', {'release': '78', 'base': '105', 'name': 'yum'}))
