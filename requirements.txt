@@ -3,3 +3,4 @@ Django==1.3.2
 redis
 requests
 BeautifulSoup
+mock
