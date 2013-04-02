@@ -43,7 +43,18 @@ This will start the server at port 8080. If you want to start the server in a
 different port you can provide it as a command line argument.
 
 
-Koji Plugin
-===========
-You can setup the koji-plugin in the koji-hub. Provide the same database details
-to populate the database.
+Starting a producer
+====================
+$ darkproducer start KOJI_BUILD_ID
+
+Starts with creating jobs with the given KOJI_BUILD_ID.
+
+Starting a build worker
+=========================
+$ darkbuildqueue start
+
+Starting 3 job workers
+========================
+$ darkjobworker start
+$ darkjobworker start 1
+$ darkjobworker start 2
