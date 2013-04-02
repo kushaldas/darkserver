@@ -6,3 +6,4 @@ BeautifulSoup
 mock
 pytest
 pytest-capturelog
+pytest-cov
