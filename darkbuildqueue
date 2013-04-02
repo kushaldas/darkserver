@@ -1,9 +1,14 @@
 #!/usr/bin/env python
 import os
 import sys
+import logging
 from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import monitor_buildqueue
 from darkimporter.libimporter import create_rundir
+
+logging.basicConfig(filename='/var/log/darkserver.log', level=logging.INFO,\
+                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+
 
 class DarkDaemon(Daemon):
     def run(self):

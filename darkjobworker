@@ -13,6 +13,9 @@ from darkimporter.utils import log
 from retask.queue import Queue
 from retask.task import Task
 
+logging.basicConfig(filename='/var/log/darkserver.log', level=logging.INFO,\
+                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+
 
 class DarkDaemon(Daemon):
     def run(self):

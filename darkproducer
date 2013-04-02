@@ -7,6 +7,9 @@ from darkimporter.darkdaemon import Daemon
 from darkimporter.libimporter import produce_jobs
 from darkimporter.libimporter import create_rundir
 
+logging.basicConfig(filename='/var/log/darkserver.log', level=logging.INFO,\
+                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
+
 
 class DarkDaemon(Daemon):
     def run(self):
@@ -14,14 +17,14 @@ class DarkDaemon(Daemon):
         The daemon process
         """
         produce_jobs(int(sys.argv[2]))
- 
+
 
 if __name__ == '__main__':
     daemon = None 
     create_rundir()
     if len(sys.argv) >= 2:
         daemon = DarkDaemon('/var/run/darkserver/darkproducer.pid')
-        
+
         if 'start' == sys.argv[1]:
             daemon.start()
         else:
