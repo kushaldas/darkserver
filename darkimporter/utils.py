@@ -7,9 +7,6 @@ from email.mime.text import MIMEText
 from subprocess import Popen, PIPE
 
 
-logging.basicConfig(filename='/var/log/darkserver.log', level=logging.INFO,\
-                        format='%(asctime)s:%(name)s:%(levelname)s:%(message)s')
-
 msgtext = ""
 
 
