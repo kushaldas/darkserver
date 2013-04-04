@@ -27,7 +27,7 @@ def send_mail(toaddr, fromaddr, subject, message):
     return p.communicate(msg.as_string())
 
 
-def log(name='justlog', text='', logtype='info'):
+def log(name='justlog', text='', logtype='info', send_mail=True):
     """
     Logs the message for the project.
 
@@ -44,15 +44,16 @@ def log(name='justlog', text='', logtype='info'):
             logger.debug(text)
         elif logtype == 'error':
             logger.exception(text)
-            #Email the error log
-            exc_type, exc_value, exc_traceback = sys.exc_info()
-            lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
-            message = ''.join(lines)
-            if msgtext:
-                message = '%s\n%s' % (msgtext, message)
-            toaddr = get_email_config()
-            if toaddr:
-                send_mail(toaddr, 'admin@darkserver.fedoraproject.org', 'ERROR OCCURRED: in darkserver', message)
+            if send_mail:
+                #Email the error log
+                exc_type, exc_value, exc_traceback = sys.exc_info()
+                lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
+                message = ''.join(lines)
+                if msgtext:
+                    message = '%s\n%s' % (msgtext, message)
+                toaddr = get_email_config()
+                if toaddr:
+                    send_mail(toaddr, 'admin@darkserver.fedoraproject.org', 'ERROR OCCURRED: in darkserver', message)
 
 def get_email_config(path = '/etc/darkserver/email.json'):
     """

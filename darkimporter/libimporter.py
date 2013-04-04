@@ -389,7 +389,9 @@ def produce_jobs(idx):
                 rdb.incr('darkproducer-id')
 
         except Exception, error:
-            log(key, str(error), 'error')
+            log(key, str(error), 'error', send_mail=False)
+            time.sleep(120)
+            continue
     rdb.set('darkproducer-status', '0')
 
 
