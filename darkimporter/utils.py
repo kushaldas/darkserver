@@ -27,7 +27,7 @@ def send_mail(toaddr, fromaddr, subject, message):
     return p.communicate(msg.as_string())
 
 
-def log(name='justlog', text='', logtype='info', send_mail=True):
+def log(name='justlog', text='', logtype='info', sendmail=True):
     """
     Logs the message for the project.
 
@@ -44,7 +44,7 @@ def log(name='justlog', text='', logtype='info', send_mail=True):
             logger.debug(text)
         elif logtype == 'error':
             logger.exception(text)
-            if send_mail:
+            if sendmail:
                 #Email the error log
                 exc_type, exc_value, exc_traceback = sys.exc_info()
                 lines = traceback.format_exception(exc_type, exc_value, exc_traceback)
