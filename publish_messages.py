@@ -9,7 +9,7 @@ with open('fixtures.json', 'r') as infile:
     for count,raw_message in enumerate(raw_messages):
         number = random.randint(1, 11)
         time.sleep(1)
-        if count == 3:
-            break
+        if raw_message['msg']['new'] != 1:
+            continue
         fedmsg.publish(msg=raw_message['msg'], topic='buildsys.build.state.change')
         count += 1
