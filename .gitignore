@@ -1,6 +1,7 @@
 *.pyc
 *.wpr
 *.wpu
+*.egg-info
 darkserverweb/.coverage
 build/
 dist/
