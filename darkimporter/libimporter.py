@@ -14,8 +14,8 @@ import logging
 import requests
 import ConfigParser
 from .utils import log
-from retask import Queue
-from retask import Task
+from retask.queue import Queue
+from retask.task import Task
 from BeautifulSoup import BeautifulSoup
 
 
