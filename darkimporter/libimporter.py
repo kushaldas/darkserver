@@ -184,7 +184,7 @@ def get_unstrip_buildid(filepath):
     return data.split(' ')[1].split('@')[0]
 
 
-def parserpm(destdir, path, key, distro="fedora", kojiid = None):
+def parserpm(destdir, path, key, distro="fedora", kojiid=None, instance="primary", url=None):
     """
     parse the rpm and insert data into database
     """
@@ -217,10 +217,10 @@ def parserpm(destdir, path, key, distro="fedora", kojiid = None):
             name = eachfile[dest_len + 1:]
             dirname = "/" + '/'.join(os.path.dirname(name).split('/')[1:])
             sql = "INSERT INTO buildid_gnubuildid VALUES"\
-                              " (null, '%s','%s','%s','%s','%s', %s)"
+                              " (null, '%s','%s','%s','%s','%s', %s, '%s', '%s')"
             sql = sql % (os.path.basename(name), dirname, \
                          data[0], \
-                         filename[:-4], distro, str(kojiid))
+                         filename[:-4], distro, str(kojiid), instance, url)
 
             result.append(sql)
         except Exception, error:
@@ -273,7 +273,8 @@ def do_buildid_import(instance, idx, distro, key):
         downloadrpm(url, file_path)
         try:
             log_status('darkjobworker', 'Parsing %s' % rpm)
-            parserpm(destdir, file_path, key, distro, idx)
+            parserpm(destdir, file_path, key, distro, kojiid=idx,
+                     instance=instance, url=url)
         except Exception, error:
             log(key, str(error), 'error')
             #Remove the temp dir
