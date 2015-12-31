@@ -1,6 +1,4 @@
 import os
-import sys
-import time
 import redis
 import koji
 import stat
@@ -9,24 +7,16 @@ import elfdata
 import MySQLdb
 import tempfile
 import subprocess
-import utils
-import logging
-import requests
 import ConfigParser
 from .utils import log
 from retask.queue import Queue
 from retask.task import Task
-from BeautifulSoup import BeautifulSoup
 
 
-def get_key(name):
-    """
-    Creates the unique key for the processes
-    """
-    key = "%s:%s" % (name, str(os.getpid()))
-    config = getconfig()
-    key = '%s:%s' % (key, config['UNIQUE'])
-    return key
+
+CONFIG = None
+KOJI_URLS = {}
+
 
 
 def get_redis_config():
@@ -67,7 +57,7 @@ def log_status(name, text):
     :arg name: Name of the process
     :arg text: Text to be saved
     """
-    key = get_key(name)
+    key = 'darkjobworker'
 
     try:
         rdb = redis_connection()
@@ -84,7 +74,7 @@ def remove_redis_keys(name):
     """
     Removes the temporary statuses
     """
-    key = get_key(name)
+    key = 'darkjobworker'
     try:
         rdb = redis_connection()
         if not rdb:
@@ -94,24 +84,6 @@ def remove_redis_keys(name):
     except Exception, e:
         log(key, str(e), 'error')
 
-
-def check_shutdown():
-    """
-    Check for shutdown for a gracefull exit.
-    """
-    key = get_key('shutdown')
-    rdb = redis_connection()
-    try:
-        if not rdb:
-            log('redis', 'redis is missing', 'error')
-            return False
-        shutdown = rdb.get(key)
-        if shutdown:
-            rdb.delete(key)
-            return True
-    except Exception, e:
-        log('redis', str(e), 'error')
-    return False
 
 
 def create_rundir():
@@ -123,26 +95,6 @@ def create_rundir():
 
 def downloadrpm(url, path):
     system("wget %s -O %s" % (url, path))
-
-
-def get_distro(idx):
-    """
-    Guess the distro name from rpm releases
-    """
-    path = './data/dark-distros.json'
-    if not os.path.exists('./data/dark-distros.json'):
-        path = '/etc/darkserver/dark-distros.json'
-
-    distro = json.load(open(path))
-    kojiurl = "http://koji.fedoraproject.org/kojihub"
-    kc = koji.ClientSession(kojiurl, {'debug': False, 'password': None,\
-                        'debug_xmlrpc': False, 'user': None})
-    res = kc.getBuild(idx)
-    for name in distro:
-        if res['release'].find(name) != -1:
-            return name
-
-    return None
 
 
 def is_elf(filepath):
@@ -196,10 +148,13 @@ def system(cmd):
     return out
 
 
-def getconfig():
+def loadconfig():
     """
     Get the server configuration as a dict
+    We also load different URLS
     """
+    global CONFIG
+    global KOJI_URLS
     path = '/etc/darkserver/darkjobworker.conf'
     result = {}
     try:
@@ -214,7 +169,14 @@ def getconfig():
         result['UNIQUE'] = config.get('darkserver','unique')
     except Exception, e:
         log('getconfig', str(e), 'error')
-    return result
+    CONFIG = result
+    koji_path = './data/koji_info.json'
+    if not os.path.exists(koji_path):
+        koji_path = '/etc/darkserver/koji_info.json'
+    print koji_path
+    with open(koji_path) as fobj:
+        KOJI_URLS = json.load(fobj)
+
 
 
 def get_unstrip_buildid(filepath):
@@ -238,7 +200,6 @@ def parserpm(destdir, path, key, distro="fedora", kojiid = None):
     #Find out all elf files from the list
     files = [os.path.join(destdir, row) for row in data]
     elffiles = find_elf_files(files)
-
     #Return if ELF file found in the RPM
     if not elffiles:
         return
@@ -266,16 +227,18 @@ def parserpm(destdir, path, key, distro="fedora", kojiid = None):
             log(key, str(error), 'error')
     #Save the result in the database
     save_result(result, key)
+    #print result
 
 
 def save_result(results, key):
-    config = getconfig()
+    config = CONFIG
     try:
 
         conn = MySQLdb.connect(config['HOST'], config['USER'], config['PASSWORD'], config['DB'])
         cursor = conn.cursor()
 
         for sql in results:
+            log(key, sql, 'info')
             cursor.execute(sql)
         conn.commit()
         conn.close()
@@ -283,168 +246,37 @@ def save_result(results, key):
         log(key, str(error), 'error')
 
 
-def do_buildid_import(mainurl, idx, key):
+def do_buildid_import(instance, idx, distro, key):
     """
     Import the buildids from the given Koji URL
     """
-    if not mainurl:
+    insd = KOJI_URLS.get(instance, None)
+    if not insd:
         return
-    #Guess the distro name
-    distro = get_distro(idx)
-    if not distro:  # We don't want to import this build
-        return
-    req = requests.get(mainurl)
-    soup = BeautifulSoup(req.content)
-    for link in soup.findAll('a'):
-        name = link.get('href')
-        if name.endswith('.rpm') and not name.endswith('.src.rpm'):
-            rpm = name.split('/')[-1]
-            log(key, 'found %s' % rpm, 'info')
-            if rpm.endswith('noarch.rpm'):  # No need to check noarch
-                continue
-            elif rpm.find('-devel-') != -1:  # Don't want to process devel packages
-                continue
-            #Create the temp dir
-            destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
-            destdir1 = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
-            rpm = os.path.join(destdir1, rpm)
-            log(key, 'downloading %s' % rpm, 'info')
-            log_status('darkjobworker', 'Downloading %s' % rpm)
-            downloadrpm(name, rpm)
-            try:
-                log_status('darkjobworker', 'Parsing %s' % rpm)
-                parserpm(destdir, rpm, key, distro, idx)
-            except Exception, error:
-                log(key, str(error), 'error')
+    koji_session = koji.ClientSession(insd['hub'])
+    build_rpms = koji_session.listBuildRPMs(idx)
+    for rpm in build_rpms:
+        if rpm['arch'] in ['noarch', 'src']: # We don't want noarch
+            continue
+        # We also do not want the devel packages
+        if rpm['name'].find('-devel') != -1:
+            continue
+        fname = "%s-%s-%s.%s.rpm" % (rpm['name'], rpm['version'], rpm['release'], rpm['arch'])
+        url = "%s/%s/%s/%s/%s/%s" % (insd['pkgs'], rpm['name'], rpm['version'], rpm['release'], rpm['arch'], fname)
+        log(key, 'found %s' % fname, 'info')
+        #Create the temp dir
+        destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
+        destdir1 = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
+        file_path = os.path.join(destdir1, fname)
+        log(key, 'downloading %s' % fname, 'info')
+        log_status('darkjobworker', 'Downloading %s' % file_path)
+        downloadrpm(url, file_path)
+        try:
+            log_status('darkjobworker', 'Parsing %s' % rpm)
+            parserpm(destdir, file_path, key, distro, idx)
+        except Exception, error:
+            log(key, str(error), 'error')
             #Remove the temp dir
-            removedir(destdir)
-            removedir(destdir1)
-            log_status('darkjobworker', 'Import done for %s' % rpm)
-
-
-def produce_jobs(idx):
-    key = get_key('darkproducer')
-    log(key, "starting with %s" % str(idx), 'info')
-    kojiurl = 'http://koji.fedoraproject.org/'
-    kojiurl2 = kojiurl + 'kojihub'
-    kc = koji.ClientSession(kojiurl2, {'debug': False, 'password': None,\
-                        'debug_xmlrpc': False, 'user': None})
-
-    config = get_redis_config()
-    jobqueue = Queue('jobqueue', config)
-    jobqueue.connect()
-    buildqueue = Queue('buildqueue', config)
-    buildqueue.connect()
-    #lastbuild = {'id':None, 'time':None}
-    rdb = redis_connection()
-    if not rdb:
-        log(key, 'redis is missing', 'error')
-        return None
-    rdb.set('darkproducer-id', idx)
-    while True:
-        if check_shutdown():
-            break
-        try:
-            rdb.set('darkproducer-status', '1')
-            idx = int(rdb.get('darkproducer-id'))
-            utils.msgtext = "ID: %s" % idx
-            res = kc.getBuild(idx)
-            url = kojiurl + 'koji/buildinfo?buildID=%s' % idx
-            if not res:
-                #FIXME!!
-                #http://koji.fedoraproject.org/koji/buildinfo?buildID=367374
-                #missing build from db :(
-                #if lastbuild['id'] != idx:
-                #    lastbuild['id'] = idx
-                #    lastbuild['time'] = time.time.now()
-                #else:
-                #    diff = time.time.now() - lastbuild['time']
-                #    if diff > 300:
-                #We have a buildid stuck, raise alarm
-
-
-                #We reached to the new build yet to start
-                #Time to sleep
-                log(key, "Sleeping with %s" % idx, 'info')
-                time.sleep(60)
-                continue
-            if res['state'] == 1:
-                # completed build now push to our redis queue
-                info = {'url': url, 'jobid': idx}
-                task = Task(info)
-                jobqueue.enqueue(task)
-                log(key, "In job queue %s" % idx, 'info')
-                rdb.incr('darkproducer-id')
-                continue
-
-            if res['state'] == 0:
-                #building state
-                info = {'url': url, 'jobid': idx, 'kojiurl': kojiurl2}
-                task = Task(info)
-                buildqueue.enqueue(task)
-                log(key, "In build queue %s" % idx, 'info')
-                rdb.incr('darkproducer-id')
-                continue
-            else:
-                rdb.incr('darkproducer-id')
-
-        except Exception, error:
-            log(key, str(error), 'error')
-    rdb.set('darkproducer-status', '0')
-
-
-def monitor_buildqueue():
-    """
-    This function monitors the build queue.
-
-    If the build is still on then it puts it back to the queue.
-    If the build is finished then it goes to the job queue.
-    """
-    key = get_key('darkbuildqueue')
-    config = get_redis_config()
-    jobqueue = Queue('jobqueue', config)
-    jobqueue.connect()
-    buildqueue = Queue('buildqueue', config)
-    buildqueue.connect()
-    rdb = redis_connection()
-    if not rdb:
-        log(key, 'redis is missing', 'error')
-        return None
-    rdb.set('darkbuildqueue-status', '1')
-    while True:
-        if check_shutdown():
-            break
-        try:
-            time.sleep(60)
-            length = buildqueue.length
-            if length == 0:
-                log(key, "Sleeping, no buildqueue job", 'info')
-                time.sleep(60)
-                continue
-            task = buildqueue.dequeue()
-            kojiurl = task.data['kojiurl']
-            idx = task.data['jobid']
-            kc = koji.ClientSession(kojiurl, {'debug': False, 'password': None,\
-                            'debug_xmlrpc': False, 'user': None})
-
-            res = kc.getBuild(idx)
-            if not res:
-                #We reached to the new build yet to start
-                #Time to sleep
-                log(key, "build deleted %s" % idx, 'error')
-                continue
-            if res['state'] == 1:
-                #completed build now push to our redis queue
-                jobqueue.enqueue(task)
-                log(key, "in job queue %s" % idx, 'info')
-                continue
-
-            if res['state'] == 0:
-                #building state
-                buildqueue.enqueue(task)
-                log(key, "in build queue %s" % idx, 'info')
-                continue
-
-        except Exception, error:
-            log(key, str(error), 'error')
-    rdb.set('darkbuildqueue-status', '0')
+        removedir(destdir)
+        removedir(destdir1)
+        log_status('darkjobworker', 'Import done for %s' % rpm)
