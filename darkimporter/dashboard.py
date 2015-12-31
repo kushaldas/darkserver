@@ -4,7 +4,6 @@ from libimporter import redis_connection
 from cmd2 import Cmd
 import time
 import sys
-import os
 
 
 class Application(Cmd):
@@ -43,13 +42,9 @@ class Application(Cmd):
         """
         print('\n')
 
-        line = line.strip()
-        if not line or not line.startswith('darkjobworker:'):
-            self.print_all_status()
-            return
         while True:
             print(' ' * 79, end='\r')
-            status = self.rdb.get(line)
+            status = self.rdb.get('darkjobworker')
             print(status, end='\r')
             sys.stdout.flush()
             time.sleep(1)
@@ -59,70 +54,5 @@ class Application(Cmd):
         Shows the queue length
         """
         status = self.rdb.llen('retaskqueue-jobqueue')
-        status2 = self.rdb.llen('retaskqueue-buildqueue')
         print("retaskqueue-jobqueue: %s" % status)
-        print("retaskqueue-buildqueue: %s" % status2)
 
-    def do_shutdown(self, line):
-        """
-        Shutdown various processes
-
-        Example calls:
-        shutdown darkproducer
-        shutdown darkbuildqueue
-        shutdown darkjobworker:8390:ip
-
-        """
-        line = line.strip()
-        if not line:
-            return
-        if line.startswith('darkjobworker:'):
-            process_id = line.split(':')[1]
-            unique = line.split(':')[2]
-            self.rdb.set('shutdown:%s:%s' % (process_id, unique), 1)
-        elif line.startswith('darkproducer'):
-            process_id = self.get_process_id('darkproducer')
-            if process_id:
-                self.rdb.set('shutdown:%s' % process_id, 1)
-        elif line.startswith('darkbuildqueue'):
-            process_id = self.get_process_id('darkbuildqueue')
-            if process_id:
-                self.rdb.set('shutdown:%s' % process_id, 1)
-        elif line.startswith('workers'):
-            for key in self.rdb.keys('darkjobworker:*'):
-                process_id = key.split(':')[1]
-                unique = key.split(':')[2]
-                self.rdb.set('shutdown:%s:%s' % (process_id, unique), 1)
-                print("Setting shutdown notice to %s" % key)
-
-    def print_all_status(self):
-        """
-        Print status of running processes.
-        """
-        producer = self.rdb.get('darkproducer-status')
-        color = 'green' if producer == '1' else 'red'
-        status = 'running' if producer == '1' else 'stopped'
-        print(self.bold("Producer\t\t"), end='')
-        print(self.bold(self.colorize(status, color)), end='\n')
-
-        # For Build worker
-        builder = self.rdb.get('darkbuildqueue-status')
-        color = 'green' if builder == '1' else 'red'
-        status = 'running' if builder == '1' else 'stopped'
-        print(self.bold("Buildworker\t\t"), end='')
-        print(self.bold(self.colorize(status, color)), end='\n')
-
-        # Print all running darkjobworker
-        print(self.bold('\nRunning instances of darkjobworker:'))
-        for key in self.rdb.keys('darkjobworker:*'):
-            print(key)
-
-        print('\n')
-
-    def get_process_id(self, name):
-        if os.path.exists('/var/run/darkserver/%s.pid' % name):
-            process_id = open('/var/run/darkserver/%s.pid' % name).read()
-            process_id = process_id.strip()
-            return process_id
-        else:
-            return None

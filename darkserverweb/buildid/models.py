@@ -10,11 +10,5 @@ class Gnubuildid(models.Model):
     rpm_name = models.TextField()
     distro = models.TextField()
     kojibuildid = models.IntegerField()
-
-class Darkuser(models.Model):
-    """
-    Table to store darkserver write users
-    """
-    name = models.TextField()
-    password = models.TextField()
-    comments = models.TextField()
+    kojitype = models.TextField()
+    rpm_url = models.TextField()

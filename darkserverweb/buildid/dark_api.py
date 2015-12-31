@@ -13,7 +13,7 @@ import koji
 import hashlib
 import MySQLdb
 import ConfigParser
-from buildid.models import *
+from .models import *
 
 
 def parsepath(path):
