@@ -3,7 +3,10 @@
 import koji
 import json
 
+from retask import Task
+from retask import Queue
 
+from darkimporter.libimporter import get_redis_config
 
 def find_builds(oldid, newid):
     """
@@ -14,6 +17,11 @@ def find_builds(oldid, newid):
     """
     koji_session = koji.ClientSession("http://koji.fedoraproject.org/kojihub/")
 
+
+    config = get_redis_config()
+    jobqueue = Queue('jobqueue', config)
+    jobqueue.connect()
+
     for i in range(oldid, newid + 1):
         build_rpms = koji_session.listBuildRPMs(i)
         if build_rpms:
@@ -22,6 +30,14 @@ def find_builds(oldid, newid):
             if release == 'el5':
                 continue
             print i, release # Enqueue the job here.
+            info = {
+                'build_id': i,
+                'instance': 'primary',
+                'release': release,
+            }
+
+            task = Task(info)
+            enqueue(task)
         else:
             print "Missing: ", i
 
