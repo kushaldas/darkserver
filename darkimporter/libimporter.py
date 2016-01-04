@@ -206,12 +206,13 @@ def parserpm(destdir, path, key, distro="fedora", kojiid=None, instance="primary
     #Find the lenth of the destdir name
     dest_len = len(destdir)
     result = []
-    #run eu-unstrip and parse the result
+
     for eachfile in elffiles:
+        # Using the new module
         data = elfdata.get_buildid(eachfile)
+        if not data: #run eu-unstrip and parse the result
+            data = get_unstrip_buildid(eachfile)
         if not data:
-            data = [get_unstrip_buildid(eachfile)]
-        if not data[0]:
             continue
         try:
             name = eachfile[dest_len + 1:]
