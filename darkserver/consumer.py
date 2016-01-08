@@ -12,7 +12,7 @@ log = logging.getLogger("fedmsg")
 
 
 class DarkserverConsumer(fedmsg.consumers.FedmsgConsumer):
-    topic = 'org.fedoraproject.dev.__main__.buildsys.build.state.change'
+    topic = 'org.fedoraproject.prod.buildsys.build.state.change'
     config_key = 'darkserver.consumer.enabled'
 
     def __init__(self, *args, **kwargs):

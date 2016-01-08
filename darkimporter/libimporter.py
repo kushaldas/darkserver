@@ -220,7 +220,7 @@ def parserpm(destdir, path, key, distro="fedora", kojiid=None, instance="primary
             sql = "INSERT INTO buildid_gnubuildid VALUES"\
                               " (null, '%s','%s','%s','%s','%s', %s, '%s', '%s')"
             sql = sql % (os.path.basename(name), dirname, \
-                         data[0], \
+                         data, \
                          filename[:-4], distro, str(kojiid), instance, url)
 
             result.append(sql)
