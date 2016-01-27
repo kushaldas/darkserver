@@ -34,12 +34,13 @@ class DarkserverConsumer(fedmsg.consumers.FedmsgConsumer):
             instance = msg_body['msg']['instance']
             release = msg_body['msg']['release'].split('.')[-1]
 
-            info = {
-                'build_id': build_id,
-                'instance': instance,
-                'release': release,
-            }
+            if release != 'el5':
+                info = {
+                    'build_id': build_id,
+                    'instance': instance,
+                    'release': release,
+                }
 
-            task = Task(info)
-            self.jobqueue.enqueue(task)
-            log.info("In job queue %s" % build_id)
+                task = Task(info)
+                self.jobqueue.enqueue(task)
+                log.info("In job queue %s" % build_id)
