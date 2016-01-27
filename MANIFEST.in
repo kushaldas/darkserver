@@ -9,5 +9,6 @@ include MANIFEST.in
 include darkserverweb/*.py
 include darkimporter/*.py
 include darkserverweb/buildid/*.py
+include fedmsg.d/darkserver.py
 include static/*.*
 include static/style.css
