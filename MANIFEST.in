@@ -1,6 +1,7 @@
 include darkserver.wsgi
 include darkserver-httpd.conf
 include darkserverweb.conf
+include darkserver/*.py
 include data/*.json
 include data/*.conf
 include setup.py

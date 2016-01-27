@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='darkserver',
-    version='1.0',
+    version='1.0.1',
     description="GNU build-id web service",
     long_description = "GNU build-id web service",
     platforms = ["Linux"],
@@ -12,7 +12,7 @@ setup(
     author_email="mail@kushaldas.in",
     url="https://github.com/kushaldas/darkserver",
     license = "http://www.gnu.org/copyleft/gpl.html",
-    packages = ['darkserverweb', 'darkserverweb.buildid', 'darkimporter'],
+    packages = ['darkserverweb', 'darkserverweb.buildid', 'darkimporter', 'darkserver'],
     data_files=[('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
         ('/usr/sbin/', ['darkserver.wsgi', 'darkdashboard']),
         ('/etc/darkserver/', ['darkserverweb/settings.py', 'darkserverweb.conf',\
