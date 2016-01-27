@@ -25,7 +25,7 @@ MANAGERS = ADMINS
 try:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+            'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
             'NAME': config.get('darkserverweb','database'),                      # Or path to database file if using sqlite3.
             'USER': config.get('darkserverweb','user'),                      # Not used with sqlite3.
             'PASSWORD': config.get('darkserverweb','password') ,                  # Not used with sqlite3.
