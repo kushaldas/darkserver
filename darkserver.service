@@ -1,0 +1,12 @@
+[Unit]
+Description=Generic Darkserver service
+After=network.target redis.service fedmsg-hub.service
+
+[Service]
+Environment="HOME=/root"
+ExecStart=/usr/sbin/darkserver_job
+Type=simple
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
