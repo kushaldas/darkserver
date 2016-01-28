@@ -10,11 +10,13 @@ except: # pragma: no cover
 
 # Django settings for darkserverweb project.
 sys.path.append('/usr/lib/python2.7/site-packages/darkserverweb/')
-sys.path.append('/usr/lib/python2.6/site-packages/darkserverweb/')
 
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+
+ALLOWED_HOSTS = ['darkserver.stg.fedoraproject.org', 'darkserver.fedoraproject.org']
+
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
