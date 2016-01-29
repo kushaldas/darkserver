@@ -71,28 +71,15 @@ def find_buildids(ids):
     return json.dumps(result)
 
 
-def get_koji_download_url(pkg_name, \
-                kojiurl="http://koji.fedoraproject.org/kojihub", \
-                pkg_url="http://koji.fedoraproject.org/packages"):
-    """Returns download URL for packages from koji
-    """
-    if not pkg_name.endswith('.rpm'):
-        pkg_name = pkg_name + '.rpm'
-    kc = koji.ClientSession(kojiurl, \
-                                {'debug': False, 'password': None, \
-                                     'debug_xmlrpc': False, 'user': None})
-    rpm_result = kc.search(pkg_name, "rpm", "glob")
-    if not rpm_result:
-        return json.dumps({'error': 'rpm not found'})
-    rpm_id = rpm_result[0]["id"]
-    rpm_info = kc.getRPM(rpm_id)
-    fname = koji.pathinfo.rpm(rpm_info)
-    parent_build_id = rpm_info["build_id"]
-    parent_build_info = kc.getBuild(parent_build_id)
-    url = '%s/%s/%s/%s/%s' % (pkg_url, parent_build_info['name'], \
-                                  parent_build_info['version'], \
-                                  parent_build_info['release'], \
-                                  fname)
+def find_rpm_url(name):
+    "Find the rpm download URL"
+    if name.endswith('.rpm'):
+        name = name[:-4]
+    url = ''
+    rows = Gnubuildid.objects.filter(rpm_name=name)
+
+    if len(rows) > 0:
+        url = rows[0].rpm_url
     return json.dumps({'url':url})
 
 

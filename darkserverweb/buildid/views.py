@@ -11,7 +11,7 @@ from django.http import HttpResponseServerError
 import json
 from dark_api import *
 
-SERVER_VERSION = '0.8'
+SERVER_VERSION = '1.1'
 
 def buildids(request, ids):
     """
@@ -29,7 +29,7 @@ def package(request, name):
     """
     Returns the package download url from koji
     """
-    return HttpResponse(get_koji_download_url(name), mimetype='application/json')
+    return HttpResponse(find_rpm_url(name), mimetype='application/json')
 
 def index(request):
     """
