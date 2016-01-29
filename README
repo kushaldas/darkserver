@@ -12,22 +12,20 @@ https://fedoraproject.org/wiki/Darkserver
 Requirements
 ============
 
-* Python >= 2.6
-* Django >= 1.1.2
+* Python >= 2.7
+* Django >= 1.6.x
 * elf-utils
 * koji
 * rpmdevtools
-* mysql server
+* Postgresql
 * httpd
 * mod_wsgi
-* mysql
-* MySQL-python
+* python-psycopg2
 * redis
 * wget
 * python-retask
 * python-cmd2
 * python-requests
-* python-BeautifulSoup
 
 
 Web server
@@ -42,8 +40,4 @@ $ python manage.py runserver 8080
 This will start the server at port 8080. If you want to start the server in a
 different port you can provide it as a command line argument.
 
-
-Koji Plugin
-===========
-You can setup the koji-plugin in the koji-hub. Provide the same database details
-to populate the database.
+We are now using a fedmsg listener to listen to newer builds.
