@@ -45,6 +45,7 @@ def find_rpm_details(name):
         data['elf'] = os.path.join(row.instpath,row.elfname)
         data['rpm'] = row.rpm_name
         data['distro'] = row.distro
+        data['url'] = row.rpm_url
         result.append(data)
 
     return json.dumps(result)
@@ -64,6 +65,7 @@ def find_buildids(ids):
         data['elf'] = os.path.join(row.instpath,row.elfname)
         data['rpm'] = row.rpm_name
         data['distro'] = row.distro
+        data['url'] = row.rpm_url
         result.append(data)
 
     return json.dumps(result)
