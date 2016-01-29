@@ -4,7 +4,7 @@ import koji
 import stat
 import json
 import elfdata
-import MySQLdb
+import psycopg2
 import tempfile
 import subprocess
 import ConfigParser
@@ -235,7 +235,8 @@ def save_result(results, key):
     config = CONFIG
     try:
 
-        conn = MySQLdb.connect(config['HOST'], config['USER'], config['PASSWORD'], config['DB'])
+        conn = psycopg2.connect("dbname='{0}' user='{1}' password='{2}' host='{3}'".format(config['DB'],\
+                                                    config['USER'], config['PASSWORD'], config['HOST']))
         cursor = conn.cursor()
 
         for sql in results:

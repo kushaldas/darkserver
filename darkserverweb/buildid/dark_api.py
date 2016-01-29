@@ -9,10 +9,6 @@
 
 import os
 import json
-import koji
-import hashlib
-import MySQLdb
-import ConfigParser
 from .models import *
 
 
