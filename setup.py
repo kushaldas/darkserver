@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='darkserver',
-    version='1.0.2',
+    version='1.0.3',
     description="GNU build-id web service",
     long_description = "GNU build-id web service",
     platforms = ["Linux"],
