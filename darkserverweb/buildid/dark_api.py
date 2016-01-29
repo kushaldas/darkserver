@@ -76,10 +76,13 @@ def find_rpm_url(name):
     if name.endswith('.rpm'):
         name = name[:-4]
     url = ''
-    rows = Gnubuildid.objects.filter(rpm_name=name)
-
-    if len(rows) > 0:
-        url = rows[0].rpm_url
+    row = None
+    try:
+        row = Gnubuildid.objects.filter(rpm_name=name).first()
+    except:
+        pass
+    if row:
+        url = row.rpm_url
     return json.dumps({'url':url})
 
 
