@@ -2,8 +2,8 @@
 
 import fedmsg.consumers
 
-from retask import Task
-from retask import Queue
+from retask.task import Task
+from retask.queue import Queue
 
 from darkimporter.libimporter import get_redis_config
 
