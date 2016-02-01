@@ -11,7 +11,7 @@ from django.http import HttpResponseServerError
 import json
 from dark_api import *
 
-SERVER_VERSION = '1.0.3'
+SERVER_VERSION = '1.0.4'
 
 def buildids(request, ids):
     """
