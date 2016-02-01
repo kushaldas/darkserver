@@ -1,14 +1,31 @@
 # -*- coding: utf-8 -*-
 
+import os
 import fedmsg.consumers
 
 from retask.task import Task
 from retask.queue import Queue
 
-from darkimporter.libimporter import get_redis_config
 
 import logging
 log = logging.getLogger("fedmsg")
+
+
+def get_redis_config():
+    """ 
+    Get the server configuration as a dict
+    """
+    path = './data/redis_server.json'
+    if not os.path.exists(path):
+        path = '/etc/darkserver/redis_server.json'
+
+    try:
+        with open(path) as fobj:
+            config = json.load(fobj)
+            return config
+    except Exception, e:
+        pass
+    return None
 
 
 class DarkserverConsumer(fedmsg.consumers.FedmsgConsumer):
