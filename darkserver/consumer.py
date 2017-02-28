@@ -1,32 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
+import ConfigParser
+import pika
 import fedmsg.consumers
-
-from retask.task import Task
-from retask.queue import Queue
 
 
 import logging
 log = logging.getLogger("fedmsg")
-
-
-def get_redis_config():
-    """ 
-    Get the server configuration as a dict
-    """
-    path = './data/redis_server.json'
-    if not os.path.exists(path):
-        path = '/etc/darkserver/redis_server.json'
-
-    try:
-        with open(path) as fobj:
-            config = json.load(fobj)
-            return config
-    except Exception, e:
-        pass
-    return None
-
 
 class DarkserverConsumer(fedmsg.consumers.FedmsgConsumer):
     topic = 'org.fedoraproject.prod.buildsys.build.state.change'
@@ -34,10 +16,11 @@ class DarkserverConsumer(fedmsg.consumers.FedmsgConsumer):
 
     def __init__(self, *args, **kwargs):
         super(DarkserverConsumer, self).__init__(*args, **kwargs)
-        self.config = get_redis_config()
-        self.jobqueue = Queue('jobqueue', self.config)
-        self.jobqueue.connect()
-        print 'DarkserverConsumer ready for action'
+        self.config = ConfigParser.SafeConfigParser()
+        self.config.read(['./data/rabbitmq.cfg', '/etc/darkserver/rabbitmq.cfg'])
+        args = {key: val for key, val in self.config.items('rabbitmq')} if self.config.has_section('rabbitmq') else {}
+        self.params = pika.ConnectionParameters(**args)
+        log.info('DarkserverConsumer ready for action')
 
     def consume(self, msg):
         """ Consumer the koji messages
@@ -58,6 +41,20 @@ class DarkserverConsumer(fedmsg.consumers.FedmsgConsumer):
                     'release': release,
                 }
 
-                task = Task(info)
-                self.jobqueue.enqueue(task)
+                self.submit_data(info)
                 log.info("In job queue %s" % build_id)
+
+    def submit_data(self, data):
+        "Submits the data to rabbitmq"
+        # We reconnect everytime, since we won't get a notification if
+        # the connection was closed.
+        connection = pika.BlockingConnection(self.params)
+        channel = connection.channel()
+        channel.queue_declare('darkserver_importer', durable=True)
+        channel.basic_publish(exchange='',
+                              routing_key='darkserver_importer',
+                              body=json.dumps(data),
+                              properties=pika.BasicProperties(
+                                delivery_mode=2
+                              ))
+        connection.close()
