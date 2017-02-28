@@ -11,8 +11,8 @@ include darkserverweb/*.py
 include darkimporter/*.py
 include darkserverweb/buildid/*.py
 include fedmsg.d/darkserver.py
+include fedmsg.d/endpoints-darkserver.py
 include darkserver.service
 include darkjobworker.py
-include darkdashboard
 include static/*.*
 include static/style.css
