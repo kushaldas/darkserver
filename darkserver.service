@@ -1,6 +1,6 @@
 [Unit]
 Description=Generic Darkserver service
-After=network.target redis.service fedmsg-hub.service
+After=network.target fedmsg-hub.service
 
 [Service]
 Environment="HOME=/root"
