@@ -9,7 +9,11 @@ from darkimporter import libimporter
 from darkimporter.libimporter import do_buildid_import
 from darkimporter.libimporter import create_rundir
 
-log = logging.getLogger("darkserver")
+from systemd.journal import JournalHandler
+
+log = logging.getLogger('darkserver')
+log.addHandler(JournalHandler())
+log.setLevel(logging.INFO)
 
 def callback(ch, method, properties, body):
     data = json.loads(body)

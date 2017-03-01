@@ -9,7 +9,11 @@ import subprocess
 import ConfigParser
 
 import logging
-log = logging.getLogger("darkserver")
+from systemd.journal import JournalHandler
+
+log = logging.getLogger('darkserver')
+log.addHandler(JournalHandler())
+log.setLevel(logging.INFO)
 
 CONFIG = None
 KOJI_URLS = {}
@@ -95,10 +99,8 @@ def loadconfig():
         result['USER'] = config.get('darkserver','user')
         result['PASSWORD'] = config.get('darkserver','password')
         result['HOST'] = config.get('darkserver','host')
-        result['PORT'] = config.get('darkserver','port')
-        result['UNIQUE'] = config.get('darkserver','unique')
     except Exception, e:
-        log.Error(str(e))
+        log.error(str(e))
     CONFIG = result
     koji_path = './data/koji_info.json'
     if not os.path.exists(koji_path):
@@ -147,15 +149,15 @@ def parserpm(destdir, path, distro="fedora", kojiid=None, instance="primary", ur
         try:
             name = eachfile[dest_len + 1:]
             dirname = "/" + '/'.join(os.path.dirname(name).split('/')[1:])
-            sql = "INSERT INTO buildid_gnubuildid VALUES"\
-                              " (null, '%s','%s','%s','%s','%s', %s, '%s', '%s')"
+            sql = "INSERT INTO buildid_gnubuildid (elfname,instpath,build_id,rpm_name,distro,kojibuildid,koji_type,rpm_url) VALUES"\
+                              " ('%s','%s','%s','%s','%s', %s, '%s', '%s')"
             sql = sql % (os.path.basename(name), dirname, \
                          data, \
                          filename[:-4], distro, str(kojiid), instance, url)
 
             result.append(sql)
         except Exception, error:
-            log.Error(str(error))
+            log.error(str(error))
     #Save the result in the database
     save_result(result)
 
