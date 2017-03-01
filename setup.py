@@ -12,9 +12,9 @@ setup(
     author_email="mail@kushaldas.in",
     url="https://github.com/kushaldas/darkserver",
     license = "http://www.gnu.org/copyleft/gpl.html",
-    packages = ['darkweb', 'darkserverweb.buildid', 'darkimporter', 'darkserver'],
+    packages = ['darkweb', 'darkimporter', 'darkserver'],
     data_files=[('/etc/httpd/conf.d/', ['darkserver-httpd.conf']),
-        ('/usr/sbin/', ['darkserver.wsgi',]),
+        ('/usr/sbin/', ['darkserver.wsgi', 'darkserver_job']),
         ('/etc/darkserver/', ['data/koji_info.json', 'data/darkjobworker.conf',]),
         ('/usr/share/darkserver/', ['darkjobworker.py']),],
     entry_points={
