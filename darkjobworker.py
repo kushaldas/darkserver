@@ -1,46 +1,51 @@
-#!/usr/bin/env python
-import os
-import sys
-import time
+#!/usr/bin/env python2
+import json
 import logging
 
-import darkimporter.utils as utils
+
+import pika
+import ConfigParser
 from darkimporter import libimporter
 from darkimporter.libimporter import do_buildid_import
-from darkimporter.libimporter import create_rundir, log_status
-from darkimporter.libimporter import remove_redis_keys, get_redis_config
-from darkimporter.utils import log
-from retask.queue import Queue
-from retask.task import Task
+from darkimporter.libimporter import create_rundir
 
-                
+log = logging.getLogger("darkserver")
+
+def callback(ch, method, properties, body):
+    data = json.loads(body)
+    log.info('Received message %s' % data)
+    try:
+        instance = data['instance']
+        idx = data['build_id']
+        distro = data['release']
+        log.info("Import started %s" % idx)
+        do_buildid_import(instance, idx, distro, "darkjobworker")
+        log.info("Import finished %s" % idx)
+    except Exception, err:
+        log.info(str(err))
+        return
+    print "one more done."
+    ch.basic_ack(delivery_tag=method.delivery_tag)
+
 
 if __name__ == '__main__':
     libimporter.loadconfig()
     create_rundir()
-    key = 'darkjobworker'
-    config = get_redis_config()
-    jobqueue = Queue('jobqueue', config)
-    jobqueue.connect()
-    log_status('darkjobworker', 'Starting worker module')
-    while True:
+    config = ConfigParser.SafeConfigParser()
+    config.read(['./data/rabbitmq.cfg', '/etc/darkserver/rabbitmq.cfg'])
+    args = {key: val for key, val in config.items('rabbitmq')} if config.has_section('rabbitmq') else {}
+    params = pika.ConnectionParameters(**args)
 
-        if jobqueue.length == 0:
-            log(key, "Sleeping, no jobqueue job", 'info')
-            time.sleep(60)
-            continue
-        try:
-            task = jobqueue.dequeue()
-            if not task:
-                continue
-            instance = task.data['instance']
-            idx = task.data['build_id']
-            distro = task.data['release']
-            utils.msgtext = task.data['instance']
-            log(key, "Import started %s" % idx, 'info')
-            do_buildid_import(instance, idx, distro, key)
-            log(key, "Import finished %s" % idx, 'info')
-        except Exception, err:
-            log(key, str(err), 'error')
-        print "one more done or crashed"
-    remove_redis_keys('darkjobworker')
+    connection = pika.BlockingConnection(params)
+    channel = connection.channel()
+    channel.queue_declare('darkserver_importer', durable=True)
+    # Make sure we leave any other messages in the queue
+    channel.basic_qos(prefetch_count=1)
+    channel.basic_consume(callback,
+                          queue='darkserver_importer')
+    try:
+        log.info('Starting consuming')
+        channel.start_consuming()
+    finally:
+        channel.cancel()
+        connection.close()

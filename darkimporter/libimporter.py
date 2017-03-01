@@ -1,5 +1,4 @@
 import os
-import redis
 import koji
 import stat
 import json
@@ -8,81 +7,12 @@ import psycopg2
 import tempfile
 import subprocess
 import ConfigParser
-from .utils import log
-from retask.queue import Queue
-from retask.task import Task
 
-
+import logging
+log = logging.getLogger("darkserver")
 
 CONFIG = None
 KOJI_URLS = {}
-
-
-
-def get_redis_config():
-    """
-    Get the server configuration as a dict
-    """
-    path = './data/redis_server.json'
-    if not os.path.exists(path):
-        path = '/etc/darkserver/redis_server.json'
-
-    try:
-        with open(path) as fobj:
-            config = json.load(fobj)
-            return config
-    except Exception, e:
-        log('get_redis_config', str(e), 'error')
-    return None
-
-
-def redis_connection():
-    """
-    Returns the rdb object.
-    """
-    try:
-        config = get_redis_config()
-        rdb = redis.Redis(config['host'], config['port'], config['db'],\
-                             config['password'])
-        return rdb
-    except Exception, e:
-        log('redis_connection', str(e), 'error')
-        return
-
-
-def log_status(name, text):
-    """
-    Saves the status for the given name in redis.
-
-    :arg name: Name of the process
-    :arg text: Text to be saved
-    """
-    key = 'darkjobworker'
-
-    try:
-        rdb = redis_connection()
-        if not rdb:
-
-            return None
-        rdb.set(key, text)
-        return True
-    except Exception, e:
-        log(key, str(e), 'error')
-
-
-def remove_redis_keys(name):
-    """
-    Removes the temporary statuses
-    """
-    key = 'darkjobworker'
-    try:
-        rdb = redis_connection()
-        if not rdb:
-            log(key, 'redis is missing', 'error')
-            return None
-        rdb.delete(key)
-    except Exception, e:
-        log(key, str(e), 'error')
 
 
 
@@ -168,7 +98,7 @@ def loadconfig():
         result['PORT'] = config.get('darkserver','port')
         result['UNIQUE'] = config.get('darkserver','unique')
     except Exception, e:
-        log('getconfig', str(e), 'error')
+        log.Error(str(e))
     CONFIG = result
     koji_path = './data/koji_info.json'
     if not os.path.exists(koji_path):
@@ -184,14 +114,14 @@ def get_unstrip_buildid(filepath):
     return data.split(' ')[1].split('@')[0]
 
 
-def parserpm(destdir, path, key, distro="fedora", kojiid=None, instance="primary", url=None):
+def parserpm(destdir, path, distro="fedora", kojiid=None, instance="primary", url=None):
     """
     parse the rpm and insert data into database
     """
     path = path.strip()
     filename = os.path.basename(path)
 
-    log(key, 'Extracting: %s' % path, 'info')
+    log.info('Extracting: %s' % path)
     #Extract the rpm
     cmd = 'rpmdev-extract -C %s %s' % (destdir, path)
 
@@ -225,13 +155,11 @@ def parserpm(destdir, path, key, distro="fedora", kojiid=None, instance="primary
 
             result.append(sql)
         except Exception, error:
-            log(key, str(error), 'error')
+            log.Error(str(error))
     #Save the result in the database
-    save_result(result, key)
-    #print result
+    save_result(result)
 
-
-def save_result(results, key):
+def save_result(results):
     config = CONFIG
     try:
 
@@ -240,12 +168,13 @@ def save_result(results, key):
         cursor = conn.cursor()
 
         for sql in results:
-            log(key, sql, 'info')
+            log.info(sql)
             cursor.execute(sql)
         conn.commit()
         conn.close()
     except Exception, error:
-        log(key, str(error), 'error')
+        log.error(str(error))
+
 
 
 def do_buildid_import(instance, idx, distro, key):
@@ -265,21 +194,19 @@ def do_buildid_import(instance, idx, distro, key):
             continue
         fname = "%s-%s-%s.%s.rpm" % (rpm['name'], rpm['version'], rpm['release'], rpm['arch'])
         url = "%s/%s/%s/%s/%s/%s" % (insd['pkgs'], rpm['name'], rpm['version'], rpm['release'], rpm['arch'], fname)
-        log(key, 'found %s' % fname, 'info')
+        log.info('Found %s' % fname)
         #Create the temp dir
         destdir = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
         destdir1 = tempfile.mkdtemp(suffix='.' + str(os.getpid()), dir=None)
         file_path = os.path.join(destdir1, fname)
-        log(key, 'downloading %s' % fname, 'info')
-        log_status('darkjobworker', 'Downloading %s' % file_path)
+        log.info('Downloading %s' % fname)
         downloadrpm(url, file_path)
         try:
-            log_status('darkjobworker', 'Parsing %s' % rpm)
-            parserpm(destdir, file_path, key, distro, kojiid=idx,
+            parserpm(destdir, file_path, distro, kojiid=idx,
                      instance=instance, url=url)
         except Exception, error:
-            log(key, str(error), 'error')
+            log.error(str(error))
             #Remove the temp dir
         removedir(destdir)
         removedir(destdir1)
-        log_status('darkjobworker', 'Import done for %s' % rpm)
+        log.info('Import done for %s' % fname)
