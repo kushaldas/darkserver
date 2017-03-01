@@ -13,5 +13,3 @@ include fedmsg.d/darkserver.py
 include fedmsg.d/endpoints-darkserver.py
 include darkserver.service
 include darkjobworker.py
-include static/*.*
-include static/style.css
