@@ -54,7 +54,12 @@ In the backend server we run the following command.
   root@localhost# yum install darkserver-importer
 
 .. note:: Please make sure that the backend instance can reach koji,
-          ppc.koji, and s390.koji instances.
+            ppc.koji, and s390.koji, and arm.koji instances.
+
+Next step is to setup configuration for the rabbitmq. The configuration should go
+into the */etc/darkserver/rabbitmq.cfg* file with a *rabbitmq* section.
+
+Start the fedmsg-hub and then darkserver service.
 
 In the front end web nodes, we run the following command.
 ::
@@ -69,14 +74,9 @@ We will need a user with write access to the database for the backend, and one u
 only read access for the web frontends.
 
 For backend update the `/etc/darkserver/darkjobworker.conf` file, and in for frontend(s)
-update `/etc/darkserver/darkserverweb.conf` with the database configurations.
+update `/etc/darkserver/darkweb.cfg` with the database configurations.
 
 
-Now setup the db tables if it is a new install, do the following on the backend instance.
-
-::
-
-  root@localhost# python /usr/lib/python2.7/site-packages/darkserverweb/manage.py syncdb
 
 SELinux Configuration
 =====================
@@ -95,10 +95,11 @@ Enable and start fedmsg-hub, and darkserver service on the backend.
 Start the services on web frontends
 ===================================
 
-Enable and start `httpd` (Apache) service on the web frontends.
+Enable and start `httpd` (Apache) service on the web frontends. The frontend is
+now written in Flask.
 
 
 Debugging
 =========
-Set DEBUG to True in ``/etc/darkserver/settings.py`` file and restart Apache.
+To find the logs in the backend check the `fedmsg-hub` and `darkserver` service logs
 
