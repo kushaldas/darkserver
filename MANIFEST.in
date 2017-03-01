@@ -1,13 +1,12 @@
 include darkserver.wsgi
 include darkserver-httpd.conf
-include darkserverweb.conf
 include darkserver/*.py
 include data/*.json
 include data/*.conf
 include setup.py
 include README
 include MANIFEST.in
-include darkserverweb/*.py
+include darkrweb/*.py
 include darkimporter/*.py
 include darkserverweb/buildid/*.py
 include fedmsg.d/darkserver.py
