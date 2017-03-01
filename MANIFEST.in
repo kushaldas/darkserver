@@ -8,7 +8,6 @@ include README
 include MANIFEST.in
 include darkrweb/*.py
 include darkimporter/*.py
-include darkserverweb/buildid/*.py
 include fedmsg.d/darkserver.py
 include fedmsg.d/endpoints-darkserver.py
 include darkserver.service
