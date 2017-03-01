@@ -9,10 +9,8 @@ import subprocess
 import ConfigParser
 
 import logging
-from systemd.journal import JournalHandler
 
 log = logging.getLogger('darkserver')
-log.addHandler(JournalHandler())
 log.setLevel(logging.INFO)
 
 CONFIG = None
