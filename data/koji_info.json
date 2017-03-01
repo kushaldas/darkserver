@@ -1,1 +1,18 @@
-{"ppc": {"pkgs": "https://ppc.koji.fedoraproject.org/kojifiles/packages", "hub": "https://ppc.koji.fedoraproject.org/kojihub/"}, "s390": {"pkgs": "https://s390.koji.fedoraproject.org/kojifiles/packages", "hub": "https://s390.koji.fedoraproject.org/kojihub/"}, "primary": {"pkgs": "https://kojipkgs.fedoraproject.org//packages", "hub": "https://koji.fedoraproject.org/kojihub/"}}
+{
+    "ppc": {
+        "hub": "https://ppc.koji.fedoraproject.org/kojihub/",
+        "pkgs": "https://ppc.koji.fedoraproject.org/kojifiles/packages"
+    },
+    "primary": {
+        "hub": "https://koji.fedoraproject.org/kojihub/",
+        "pkgs": "https://kojipkgs.fedoraproject.org//packages"
+    },
+    "s390": {
+        "hub": "https://s390.koji.fedoraproject.org/kojihub/",
+        "pkgs": "https://s390.koji.fedoraproject.org/kojifiles/packages"
+    },
+    "arm": {
+        "hub": "https://arm.koji.fedoraproject.org/kojihub/",
+        "pkgs": "https://arm.koji.fedoraproject.org/kojifiles/packages"
+    }
+}
