@@ -26,7 +26,7 @@ def callback(ch, method, properties, body):
         do_buildid_import(instance, idx, distro, "darkjobworker")
         log.info("Import finished %s" % idx)
     except Exception, err:
-        log.info(str(err))
+        log.error(str(err))
         return
     print "one more done."
     ch.basic_ack(delivery_tag=method.delivery_tag)
@@ -50,6 +50,8 @@ if __name__ == '__main__':
     try:
         log.info('Starting consuming')
         channel.start_consuming()
+    except:
+        log.error('Error occurred', exc_info=True)
     finally:
         channel.cancel()
         connection.close()
